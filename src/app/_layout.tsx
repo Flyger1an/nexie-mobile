@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { AuthProvider } from '@/context/auth'
+import { PushBridge } from '@/components/PushBridge'
 import { getMissingEnv } from '@/lib/env'
 import { initObservability, withObservability } from '@/lib/observability'
 import { colors, radius } from '@/lib/theme'
@@ -19,6 +20,7 @@ function RootLayout() {
   return (
     <AuthProvider>
       <StatusBar style="light" />
+      <PushBridge />
       <Stack
         screenOptions={{
           headerShown: false,
