@@ -1,0 +1,153 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+
+import { colors, radius } from '@/lib/theme'
+import type { NexieOrderSummary } from '@/lib/types'
+
+type StatusTone = 'success' | 'warn' | 'danger' | 'neutral'
+
+const toneColor: Record<StatusTone, string> = {
+  success: colors.success,
+  warn: '#FBBF24',
+  danger: colors.danger,
+  neutral: colors.muted,
+}
+
+function statusInfo(status: string): { label: string; tone: StatusTone } {
+  const s = (status || '').toLowerCase()
+  if (s === 'paid' || s === 'complete' || s === 'completed' || s === 'accepted') return { label: titleize(s), tone: 'success' }
+  if (s === 'partial_refund') return { label: 'Partially refunded', tone: 'warn' }
+  if (s === 'refunded' || s === 'disputed') return { label: titleize(s), tone: 'warn' }
+  if (s === 'failed' || s === 'canceled' || s === 'cancelled' || s === 'declined') return { label: titleize(s), tone: 'danger' }
+  if (s === 'negotiation' || s === 'pending') return { label: 'In progress', tone: 'neutral' }
+  return { label: s ? titleize(s) : 'Unknown', tone: 'neutral' }
+}
+
+function titleize(s: string): string {
+  const t = s.replace(/_/g, ' ')
+  return t.charAt(0).toUpperCase() + t.slice(1)
+}
+
+function formatAmount(amountCents: number | null, currency: string): string | null {
+  if (amountCents == null) return null
+  const code = (currency || 'usd').toUpperCase()
+  try {
+    const fmt = new Intl.NumberFormat('en', { style: 'currency', currency: code })
+    const digits = fmt.resolvedOptions().maximumFractionDigits ?? 2
+    return fmt.format(amountCents / Math.pow(10, digits))
+  } catch {
+    return `${code} ${(amountCents / 100).toFixed(2)}`
+  }
+}
+
+function formatDate(iso: string): string | null {
+  if (!iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+export function OrderCard({ order, onOpen }: { order: NexieOrderSummary; onOpen: (token: string) => void }) {
+  const amount = formatAmount(order.amountCents, order.currency)
+  const status = statusInfo(order.status)
+  const date = formatDate(order.createdAt)
+
+  return (
+    <Pressable style={({ pressed }) => [styles.card, pressed ? styles.pressed : null]} onPress={() => onOpen(order.token)}>
+      <View style={styles.topRow}>
+        <Text style={styles.kind}>{order.kind === 'negotiation' ? 'Negotiation' : 'Order'}</Text>
+        <View style={[styles.statusPill, { borderColor: toneColor[status.tone] }]}>
+          <Text style={[styles.statusText, { color: toneColor[status.tone] }]}>{status.label}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.title} numberOfLines={2}>
+        {order.offerName || order.slug || 'Order'}
+      </Text>
+
+      <View style={styles.metaRow}>
+        <Text style={styles.seller} numberOfLines={1}>
+          {order.sellerName || (order.slug ? `/${order.slug}` : 'Nexez seller')}
+        </Text>
+        {amount ? <Text style={styles.amount}>{amount}</Text> : null}
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.date}>{date ?? ''}</Text>
+        <Text style={styles.link}>View →</Text>
+      </View>
+    </Pressable>
+  )
+}
+
+const styles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.045)',
+    borderRadius: radius.lg,
+    padding: 16,
+    gap: 10,
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  kind: {
+    color: colors.signal,
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
+  },
+  statusPill: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+  },
+  statusText: {
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  title: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: -0.4,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  seller: {
+    flex: 1,
+    color: colors.muted,
+    fontSize: 13,
+  },
+  amount: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  date: {
+    color: colors.faint,
+    fontSize: 12,
+  },
+  link: {
+    color: colors.signal,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+})

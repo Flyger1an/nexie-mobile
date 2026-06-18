@@ -57,3 +57,21 @@ export type NexieTurnResponse = {
     name: string
   }
 }
+
+// Mirrors the backend BuyerOrderSummary returned by GET /api/agents/nexie/orders.
+export type NexieOrderSummary = {
+  kind: 'checkout' | 'negotiation'
+  token: string
+  offerName: string | null
+  amountCents: number | null
+  currency: string
+  status: string
+  sellerName: string | null
+  slug: string | null
+  createdAt: string
+}
+
+export type NexieOrdersResponse = {
+  ok: boolean
+  orders: NexieOrderSummary[]
+}

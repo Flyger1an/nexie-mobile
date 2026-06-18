@@ -24,9 +24,14 @@ export default function ChatScreen() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.settings} onPress={() => router.push('/settings')}>
-        <Text style={styles.settingsText}>Settings</Text>
-      </Pressable>
+      <View style={styles.headerPills}>
+        <Pressable style={styles.pill} onPress={() => router.push('/orders')}>
+          <Text style={styles.pillText}>Orders</Text>
+        </Pressable>
+        <Pressable style={styles.pill} onPress={() => router.push('/settings')}>
+          <Text style={styles.pillText}>Settings</Text>
+        </Pressable>
+      </View>
       <NexieChat />
     </View>
   )
@@ -43,11 +48,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.bg,
   },
-  settings: {
+  headerPills: {
     position: 'absolute',
     zIndex: 2,
     right: 16,
     top: 58,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  pill: {
     borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.border,
@@ -55,7 +64,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  settingsText: {
+  pillText: {
     color: colors.muted,
     fontWeight: '800',
     fontSize: 12,
