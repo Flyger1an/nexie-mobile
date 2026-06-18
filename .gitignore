@@ -44,3 +44,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Firebase Android client config (FCM) — provided via EAS file env, never committed (public repo)
+google-services.json
