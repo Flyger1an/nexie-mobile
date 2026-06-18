@@ -33,6 +33,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# Sentry build-time auth token (source map upload) — never commit
+.env.sentry-build-plugin
+
 # typescript
 *.tsbuildinfo
 

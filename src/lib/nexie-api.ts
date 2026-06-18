@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js'
 
+import { apiRequest } from './api-client'
 import { env } from './env'
 import type { NexieMode, NexieTurnResponse } from './types'
 
@@ -15,25 +16,16 @@ type SendTurnInput = {
 }
 
 export async function sendNexieTurn(input: SendTurnInput): Promise<NexieTurnResponse> {
-  const response = await fetch(env.nexieApiUrl, {
+  // POST with retries:0 (the client default for non-GET) — a turn can create an
+  // approval or execute a booking/negotiation, so a blind retry could duplicate it.
+  return apiRequest<NexieTurnResponse>(env.nexieApiUrl, {
     method: 'POST',
-    headers: {
-      authorization: `Bearer ${input.session.access_token}`,
-      'content-type': 'application/json',
-      accept: 'application/json',
-    },
-    body: JSON.stringify({
+    accessToken: input.session.access_token,
+    body: {
       message: input.message,
       threadId: input.threadId,
       mode: input.mode ?? 'text',
       approval: input.approval ?? null,
-    }),
+    },
   })
-
-  const json = await response.json().catch(() => ({}))
-  if (!response.ok) {
-    throw new Error(json.error || 'Nexie could not complete that turn.')
-  }
-
-  return json
 }
