@@ -1,56 +1,58 @@
-# Welcome to your Expo app 👋
+# Nexie Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Nexie is the standalone native buyer app for Nexez. Buyers use Nexie as a personal agent to search the Nexez platform, compare services/products, negotiate terms, and start booking or checkout flows with explicit approval.
 
-## Get started
+## Stack
 
-1. Install dependencies
+- Expo React Native
+- TypeScript
+- Supabase Auth, shared with Nexez
+- Nexie agent API: `POST /api/agents/nexie`
+- Native speech recognition through `expo-speech-recognition`
+
+## Local Setup
+
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Copy env values:
 
    ```bash
-   npx expo start
+   cp .env.example .env.local
    ```
 
-In the output, you'll find options to open the app in a
+3. Start development:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```bash
+   npm run start
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Voice input uses native modules, so use a development build for full iOS/Android testing:
 
 ```bash
-npm run reset-project
+npx expo run:ios
+npx expo run:android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Current MVP
 
-### Other setup steps
+- Email/password auth with the existing Nexez Supabase project
+- Text chat with Nexie
+- Native voice-to-text input
+- Search result cards
+- Approval cards for negotiation and booking actions
+- Secure bearer-token calls to the Nexie backend
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## API Contract
 
-## Learn more
+The app calls:
 
-To learn more about developing your project with Expo, look at the following resources:
+```txt
+POST https://app.nexez.ai/api/agents/nexie
+Authorization: Bearer <supabase_access_token>
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The backend stores buyer memory and action approvals in Supabase.
