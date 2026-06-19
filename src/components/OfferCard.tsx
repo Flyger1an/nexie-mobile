@@ -1,4 +1,5 @@
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
+import * as WebBrowser from 'expo-web-browser'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { colors, radius } from '@/lib/theme'
 import type { NexieCard } from '@/lib/types'
@@ -26,7 +27,7 @@ export function OfferCard({ card, onAskToBook, onAskToNegotiate }: OfferCardProp
       {card.description ? <Text style={styles.description}>{card.description}</Text> : null}
 
       <View style={styles.actions}>
-        <Pressable style={styles.secondaryButton} onPress={() => Linking.openURL(card.url)}>
+        <Pressable style={styles.secondaryButton} onPress={() => WebBrowser.openBrowserAsync(card.url)}>
           <Text style={styles.secondaryText}>View</Text>
         </Pressable>
         {card.offerKey ? (
