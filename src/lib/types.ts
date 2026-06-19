@@ -75,3 +75,18 @@ export type NexieOrdersResponse = {
   ok: boolean
   orders: NexieOrderSummary[]
 }
+
+// A single business in the public Nexez agent catalog (agent-pages.json), normalized
+// from snake_case. Drives the Discover tab.
+export type NexieCatalogPage = {
+  name: string
+  slug: string
+  url: string
+  agentJsonUrl: string
+  description: string
+  location: string | null
+  currency: string
+  readiness: number
+  certified: boolean
+  offerCount: number
+}

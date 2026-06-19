@@ -5,23 +5,20 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/context/auth'
 import { colors, radius } from '@/lib/theme'
 
-export default function SettingsScreen() {
+export default function ProfileScreen() {
   const router = useRouter()
   const { user, signOut } = useAuth()
 
   async function handleSignOut() {
     await signOut()
+    // The tabs layout redirects to "/" once the session clears; replace is belt-and-braces.
     router.replace('/')
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
-        <Pressable onPress={() => router.back()}>
-          <Text style={styles.back}>Back</Text>
-        </Pressable>
-
-        <Text style={styles.title}>Settings</Text>
+        <Text style={styles.title}>Profile</Text>
         <Text style={styles.subtitle}>Nexie uses your Nexez account and keeps buyer memory scoped to you.</Text>
 
         <View style={styles.card}>
@@ -50,19 +47,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    paddingTop: 8,
     gap: 16,
-  },
-  back: {
-    color: colors.signal,
-    fontSize: 14,
-    fontWeight: '900',
   },
   title: {
     color: colors.text,
     fontSize: 34,
     fontWeight: '900',
     letterSpacing: -1.8,
-    marginTop: 10,
   },
   subtitle: {
     color: colors.muted,

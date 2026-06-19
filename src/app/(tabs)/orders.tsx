@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native'
@@ -11,16 +10,13 @@ import { colors } from '@/lib/theme'
 import type { NexieOrderSummary } from '@/lib/types'
 
 export default function OrdersScreen() {
-  const router = useRouter()
-  const { session, loading: authLoading } = useAuth()
+  // The tabs layout guarantees a session before this renders, but keep the guard
+  // for type-narrowing and a clean no-op if it ever changes mid-session.
+  const { session } = useAuth()
   const [orders, setOrders] = useState<NexieOrderSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (!authLoading && !session) router.replace('/')
-  }, [authLoading, router, session])
 
   // Shared fetch for pull-to-refresh + retry (event handlers, not effects).
   const load = useCallback(async (): Promise<void> => {
@@ -73,13 +69,10 @@ export default function OrdersScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Text style={styles.back}>Back</Text>
-        </Pressable>
         <Text style={styles.title}>Orders</Text>
-        <View style={styles.headerSpacer} />
+        <Text style={styles.subtitle}>Everything Nexie booked or negotiated for you.</Text>
       </View>
 
       {loading ? (
@@ -119,27 +112,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 8,
-    paddingBottom: 14,
-  },
-  back: {
-    color: colors.signal,
-    fontSize: 14,
-    fontWeight: '900',
-    width: 56,
+    paddingBottom: 6,
+    gap: 4,
   },
   title: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 26,
     fontWeight: '900',
-    letterSpacing: -0.6,
+    letterSpacing: -1.1,
   },
-  headerSpacer: {
-    width: 56,
+  subtitle: {
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 20,
   },
   center: {
     flex: 1,
@@ -179,6 +166,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 28,
     gap: 12,
   },

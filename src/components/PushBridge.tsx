@@ -16,7 +16,7 @@ function routeFromResponse(
   const data = response.notification.request.content.data as PushData | undefined
   // Orders + negotiations both live in the Orders tab; deep-link there.
   if (data?.type === 'order' || data?.type === 'negotiation') {
-    router.push('/orders')
+    router.navigate('/orders')
   }
 }
 

@@ -14,9 +14,9 @@ export function ActionResultCard({ card }: { card: Extract<NexieCard, { type: 'a
     // In-app browser (SFSafariViewController / Chrome Custom Tab) so the buyer returns
     // to Nexie after Stripe checkout / the provider handoff — never stranded in Safari.
     await WebBrowser.openBrowserAsync(card.url)
-    // Back in the app: send them to Orders to track it. The order lands there once the
-    // Stripe webhook fires (and they get a push), so pull-to-refresh if it's a beat behind.
-    router.push('/orders')
+    // Back in the app: switch to the Orders tab to track it. The order lands there once
+    // the Stripe webhook fires (and they get a push), so pull-to-refresh if it's a beat behind.
+    router.navigate('/orders')
   }
 
   return (

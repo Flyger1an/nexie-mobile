@@ -30,10 +30,11 @@ const starters = [
   'Find the best AI-ready service for a product launch',
 ]
 
-export function NexieChat() {
+export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
   const { session } = useAuth()
   const [threadId, setThreadId] = useState<string | undefined>()
   const [input, setInput] = useState('')
+  const [appliedSeed, setAppliedSeed] = useState<string | undefined>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [messages, setMessages] = useState<NexieMessage[]>([
@@ -45,6 +46,14 @@ export function NexieChat() {
   ])
   const [speakEnabled, setSpeakEnabled] = useState(false)
   const listRef = useRef<FlatList<NexieMessage>>(null)
+
+  // Adjust state when the seed prop changes (Discover -> "Ask Nexie"): prefill the
+  // composer once per distinct seed. Render-phase setState is React's recommended
+  // alternative to an effect here, and it keeps the live thread/history intact.
+  if (initialPrompt && initialPrompt !== appliedSeed) {
+    setAppliedSeed(initialPrompt)
+    setInput(initialPrompt)
+  }
 
   async function submit(text = input, mode: NexieMode = 'text') {
     const message = text.trim()

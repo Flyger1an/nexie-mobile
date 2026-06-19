@@ -12,6 +12,9 @@ export const env = {
   ...required,
   // Optional: when set, the observability seam initializes Sentry. Empty = no-op.
   sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN ?? '',
+  // Public Nexez agent catalog (agent-pages.json) — the Discover tab's data source.
+  // Lives on the agent-runtime host, NOT the app host; overridable for staging.
+  catalogUrl: process.env.EXPO_PUBLIC_NEXEZ_CATALOG_URL || 'https://nexez.app/agent-pages.json',
 }
 
 /** Required env keys that are currently empty. Non-throwing, for the startup gate UI. */
