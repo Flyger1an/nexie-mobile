@@ -138,7 +138,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 
 ---
 
-### P2 — Product Surfaces & Navigation 🟡 (nav core shipped — `ce60c47`)
+### P2 — Product Surfaces & Navigation 🟡 (nav core `ce60c47` + preferences `03abdcd` shipped)
 *Goal: turn one chat screen into a navigable app.*
 
 | Task | Area | Effort |
@@ -147,7 +147,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | **Thread history**: list `agent_threads`, resume, rename, archive, new-chat | UI + `GET threads` endpoint | M |
 | ✅ **Orders tab**: list orders/negotiations w/ status + open the buyer portal (refund/report live there) | UI + P1b endpoint | L |
 | ✅ **Discover tab** (basic): browse the public `agent-pages.json` catalog w/ client-side search → Ask Nexxi (seeds chat) / View page. Curated categories + trending feed still deferred | UI + backend feed | L |
-| **Profile/Preferences**: budget, categories, timing, location, voice on/off, notification prefs (writes `user_agents.preferences`) | UI | M |
+| ✅ **Profile/Preferences**: budget, interests, timing, location, voice-replies default → `user_agents.preferences` (server-validated; the agent honors them every LLM turn). Notification on/off still deferred | UI | M |
 | Make OfferCard **Book/Negotiate act directly** (call the action) instead of pre-filling text | `OfferCard.tsx` | S |
 | Onboarding flow (value prop, permission priming, sample query) | UI | M |
 | Empty states, loading skeletons, error retry across all screens | UI | M |
