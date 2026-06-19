@@ -172,8 +172,8 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | ✅ **Structured memory extraction** (nexez `ec06831`): replaced the regex `extractInterest` with high-precision deterministic signal extraction — `budget_observed` (only with an explicit ceiling cue, so no mis-learned stray $), `timing_observed`, cleaned/deduped interests — merged into `user_agents.memory` as SOFT hints (explicit prefs stay authoritative) + already injected into the prompt. Pure `nexie-memory.ts` + 8 tests. LLM-based extraction deferred (deterministic avoids per-turn cost) | `nexez/lib/agents/nexie.ts` | M |
 | **Streaming responses** (SSE) + incremental TTS on client | `nexez` route + client | L |
 | **Recommendations from other sources** (v1.x): a second adapter or recommendation tool that suggests beyond Nexez | `nexez` | L |
-| Tool-call observability: log tool latency, fallbacks, model errors to Sentry/analytics | `nexez` | S |
-| Prompt-injection & jailbreak test suite for the agent | `nexez` tests | M |
+| ✅ Tool-call observability (nexez `0dc912a`): `captureEvent` on the obs seam → per-turn `nexie.turn` (latency/mode/fellBack/tools/model) + `nexie.action` (negotiate/book latency+outcome) + `captureError` on LLM fallback & action failures; console + optional `OBSERVABILITY_WEBHOOK_URL` sink, fire-and-forget | `nexez` | S |
+| ✅ Prompt-injection / jailbreak safety tests (nexez `d3d5202`): lock in that money-path buyer identity comes from the SESSION (payload `buyerEmail`/`buyerReference`/`contact` ignored; `buyerAgent` hardcoded) + failed actions surface | `nexez` tests | M |
 
 **Exit Gate:** semantic search beats lexical on a labeled query set; adding a stub second adapter requires zero changes to the agent loop; streamed responses render token-by-token with TTS.
 
