@@ -1,4 +1,4 @@
-# Nexie — Product Roadmap: Scaffold → Public Launch
+# Nexxi — Product Roadmap: Scaffold → Public Launch
 
 > **Status:** Foundational scaffold complete (auth, single-thread chat, voice-in, search/approval/action cards, owner-scoped backend). This document is the source of truth for everything between here and a publicly launched app on the App Store and Google Play.
 >
@@ -10,18 +10,18 @@
 
 ## 1. Vision & Scope
 
-**Nexie is a standalone native consumer app — a personal shopping/buyer agent.** Users download it from the App Store / Play Store and use it to:
+**Nexxi is a standalone native consumer app — a personal shopping/buyer agent.** Users download it from the App Store / Play Store and use it to:
 
 1. **Shop the Nexez platform** — discover AI-ready business pages, compare offers, negotiate terms, and book/checkout, all conversationally (text + voice).
-2. **Get recommendations from other sources** (v1.x) — Nexie can suggest products/services beyond Nexez.
-3. **Shop other platforms** (v2+) — pluggable source adapters let Nexie transact across the broader web.
+2. **Get recommendations from other sources** (v1.x) — Nexxi can suggest products/services beyond Nexez.
+3. **Shop other platforms** (v2+) — pluggable source adapters let Nexxi transact across the broader web.
 
 The agent always represents the **buyer's** intent. Money-moving and offer-submitting actions are **human-approved** (the approval ledger is the safety spine).
 
 ### v1.0 scope (what ships at public launch)
 - Conversational discovery + comparison over Nexez pages (text + **voice in and out**).
 - Negotiation initiation + booking/checkout handoff, gated by explicit approval.
-- **Authenticated buyer-order linkage**: purchases & negotiations started in Nexie appear natively in an in-app Orders tab.
+- **Authenticated buyer-order linkage**: purchases & negotiations started in Nexxi appear natively in an in-app Orders tab.
 - Push notifications for async events (seller counters, booking confirmations, refunds).
 - Durable per-user memory & multi-thread history.
 - Account lifecycle: sign-up, social sign-in, password reset, **account deletion**.
@@ -29,7 +29,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 
 ### Explicitly OUT of v1.0 (deferred)
 - Shopping non-Nexez platforms (v2 — but the *abstraction* lands in v1, see §3).
-- In-app payment card entry / Apple Pay sheet inside Nexie (v1 hands off to Stripe Checkout; revisit native pay in v1.x).
+- In-app payment card entry / Apple Pay sheet inside Nexxi (v1 hands off to Stripe Checkout; revisit native pay in v1.x).
 - Multi-language / localization beyond en-US.
 - Tablet/iPad-optimized layout (`supportsTablet: false` today).
 - Web build as a first-class product (Expo web stays a dev convenience).
@@ -50,7 +50,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 |---|-----|----------|
 | 1 | Supabase **tokens stored in AsyncStorage (plaintext)** | 🔴 Security |
 | 2 | No push notifications — async negotiation loop is inert | 🔴 Product-critical |
-| 3 | **Checkout/negotiation carry no buyer identity** → Nexie orders don't surface in-app or in the buyer portal | 🔴 Product-critical |
+| 3 | **Checkout/negotiation carry no buyer identity** → Nexxi orders don't surface in-app or in the buyer portal | 🔴 Product-critical |
 | 4 | No voice **output** (TTS) despite voice-tuned prompt | 🟠 Core UX |
 | 5 | No thread history, no Orders screen (DB rows created but never listed) | 🟠 Core UX |
 | 6 | No crash/error reporting, no analytics | 🟠 Ops |
@@ -72,10 +72,10 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 3. **Secrets never in the bundle.** `EXPO_PUBLIC_*` holds only the anon key + API URL. SecureStore for session tokens.
 4. **Graceful degradation.** LLM down → deterministic search. Network down → cached state + clear offline UX.
 5. **Source-adapter seam (the multi-platform bet).** The `search_pages` tool must become one *source adapter* behind a common interface (`{ search, getOffer, initiateNegotiation, checkout }`). v1 ships a single `nexez` adapter; v2 adds others without touching the agent loop. **Design this seam in P3 even though only one adapter exists.**
-6. **Authenticated buyer-order linkage (new, critical).** Because Nexie users are signed in, every Nexie-initiated checkout/negotiation must thread the buyer's email + user id into Stripe session metadata so orders are queryable by the authenticated user — not only via the email magic-link portal. See P1.
+6. **Authenticated buyer-order linkage (new, critical).** Because Nexxi users are signed in, every Nexxi-initiated checkout/negotiation must thread the buyer's email + user id into Stripe session metadata so orders are queryable by the authenticated user — not only via the email magic-link portal. See P1.
 
 ### Topology
-- `app.nexez.ai` — authenticated product + `/api/agents/nexie` (Nexie's backend).
+- `app.nexez.ai` — authenticated product + `/api/agents/nexie` (Nexxi's backend).
 - `nexez.app` — public agent pages/artifacts (agent runtime).
 - `nexie://` — app deep-link scheme (OAuth return, checkout return, push deep links).
 
@@ -119,7 +119,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | `executeBooking`/`executeNegotiation` thread buyer `email` + `user_id` to `/api/checkout` & `/api/negotiations` | `nexez/lib/agents/nexie.ts` | M |
 | Checkout route: set Stripe `customer_email` + `metadata.nexez_buyer_user_id`; webhook persists buyer linkage on `checkout_orders` | `nexez/app/api/checkout`, stripe webhook | M |
 | New authenticated endpoint `GET /api/agents/nexie/orders` returning the buyer's orders + negotiations (by user_id/email) | `nexez` | M |
-| Verify a Nexie purchase appears in both the in-app Orders tab AND the existing `/orders/<token>` portal | e2e | S |
+| Verify a Nexxi purchase appears in both the in-app Orders tab AND the existing `/orders/<token>` portal | e2e | S |
 
 #### 1c. Voice output + tactile feedback
 | Task | Pkg / Area | Effort |
@@ -146,7 +146,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | ✅ Tab navigation: **Chat · Discover · Orders · Profile** (`app/(tabs)/`, auth-gated, emoji icons; deep-links switch tabs) | `expo-router` tabs | M |
 | **Thread history**: list `agent_threads`, resume, rename, archive, new-chat | UI + `GET threads` endpoint | M |
 | ✅ **Orders tab**: list orders/negotiations w/ status + open the buyer portal (refund/report live there) | UI + P1b endpoint | L |
-| ✅ **Discover tab** (basic): browse the public `agent-pages.json` catalog w/ client-side search → Ask Nexie (seeds chat) / View page. Curated categories + trending feed still deferred | UI + backend feed | L |
+| ✅ **Discover tab** (basic): browse the public `agent-pages.json` catalog w/ client-side search → Ask Nexxi (seeds chat) / View page. Curated categories + trending feed still deferred | UI + backend feed | L |
 | **Profile/Preferences**: budget, categories, timing, location, voice on/off, notification prefs (writes `user_agents.preferences`) | UI | M |
 | Make OfferCard **Book/Negotiate act directly** (call the action) instead of pre-filling text | `OfferCard.tsx` | S |
 | Onboarding flow (value prop, permission priming, sample query) | UI | M |
@@ -199,7 +199,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | App Store **Privacy Nutrition Label** / Play **Data Safety** form (declare: account, mic/voice, usage analytics, crash data) | store config | S |
 | App Tracking Transparency prompt **only if** any tracking SDK is added; otherwise declare no tracking | `expo-tracking-transparency` (conditional) | S |
 | Permission strings audited (mic, speech, notifications) — already partly set in `app.json` | `app.json` | S |
-| Agent safety: spend/clarity guardrails, "Nexie can be wrong" disclosure, no medical/financial/legal advice scope note | prompt + UI | S |
+| Agent safety: spend/clarity guardrails, "Nexxi can be wrong" disclosure, no medical/financial/legal advice scope note | prompt + UI | S |
 | Content & dispute policy for buyer-seller transactions (link to existing refund/report flows) | legal | S |
 | GDPR/CCPA data export + deletion path (deletion covered in P4; add export) | `nexez` | M |
 | Age rating questionnaire; export-compliance (`ITSAppUsesNonExemptEncryption` already set) | store config | S |
@@ -238,7 +238,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | Load/abuse test: rate limits, push fan-out, search under volume | ops |
 | Beta exit survey: activation, comprehension, trust, willingness to transact | research |
 
-**Exit Gate:** ≥N beta users complete a real transaction; crash-free sessions > 99%; no P0/P1 bugs open; positive comprehension on "what Nexie does."
+**Exit Gate:** ≥N beta users complete a real transaction; crash-free sessions > 99%; no P0/P1 bugs open; positive comprehension on "what Nexxi does."
 
 ---
 
@@ -296,7 +296,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 
 **Security & data**
 - [ ] Tokens in SecureStore; no secrets in bundle
-- [ ] RLS verified on every Nexie table (incl. new push/orders)
+- [ ] RLS verified on every Nexxi table (incl. new push/orders)
 - [ ] Account deletion + data export working
 - [ ] Security review passed (pre-launch)
 

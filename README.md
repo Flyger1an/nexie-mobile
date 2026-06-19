@@ -1,13 +1,15 @@
-# Nexie Mobile
+# Nexxi Mobile
 
-Nexie is the standalone native buyer app for Nexez. Buyers use Nexie as a personal agent to search the Nexez platform, compare services/products, negotiate terms, and start booking or checkout flows with explicit approval.
+Nexxi is the standalone native buyer app for Nexez. Buyers use Nexxi as a personal agent to search the Nexez platform, compare services/products, negotiate terms, and start booking or checkout flows with explicit approval.
+
+> **Name:** the consumer brand is **Nexxi**. `nexie` remains the **internal codename** — the repo (`nexie-mobile`), bundle id (`app.nexez.nexie`), URI scheme (`nexie://`), and backend routes (`/api/agents/nexie`) all keep it on purpose. Only user-visible copy says "Nexxi".
 
 ## Stack
 
 - Expo React Native
 - TypeScript
 - Supabase Auth, shared with Nexez
-- Nexie agent API: `POST /api/agents/nexie`
+- Nexxi agent API: `POST /api/agents/nexie`
 - Native speech recognition through `expo-speech-recognition`
 
 ## Local Setup
@@ -40,11 +42,11 @@ npx expo run:android
 ## Current MVP
 
 - Email/password auth with the existing Nexez Supabase project
-- Text chat with Nexie
+- Text chat with Nexxi
 - Native voice-to-text input
 - Search result cards
 - Approval cards for negotiation and booking actions
-- Secure bearer-token calls to the Nexie backend
+- Secure bearer-token calls to the Nexxi backend
 
 ## API Contract
 
