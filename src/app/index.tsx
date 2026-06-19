@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useAuth } from '@/context/auth'
+import { isOnboardingComplete } from '@/lib/onboarding'
 import { colors, radius } from '@/lib/theme'
 
 export default function WelcomeScreen() {
@@ -25,7 +26,10 @@ export default function WelcomeScreen() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!loading && session) router.replace('/chat')
+    if (!loading && session) {
+      // First-timers (per device) see onboarding before the app proper.
+      isOnboardingComplete().then((done) => router.replace(done ? '/chat' : '/onboarding'))
+    }
   }, [loading, router, session])
 
   async function submit() {
@@ -34,7 +38,8 @@ export default function WelcomeScreen() {
     try {
       if (mode === 'signin') await signIn(email.trim(), password)
       else await signUp(email.trim(), password)
-      router.replace('/chat')
+      const done = await isOnboardingComplete()
+      router.replace(done ? '/chat' : '/onboarding')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed.')
     } finally {
