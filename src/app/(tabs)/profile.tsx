@@ -44,6 +44,7 @@ export default function ProfileScreen() {
   const [timing, setTiming] = useState<NexieTiming | null>(null)
   const [location, setLocation] = useState('')
   const [voiceDefault, setVoiceDefault] = useState(false)
+  const [notifications, setNotifications] = useState(true)
 
   function applyPrefs(p: NexiePreferences) {
     setBudgetText(p.budgetMax != null ? String(p.budgetMax) : '')
@@ -52,6 +53,7 @@ export default function ProfileScreen() {
     setTiming(p.timing)
     setLocation(p.location ?? '')
     setVoiceDefault(p.voiceRepliesDefault)
+    setNotifications(p.notificationsEnabled)
   }
 
   // Initial load. setState stays inside the promise callbacks (not the effect body).
@@ -111,6 +113,7 @@ export default function ProfileScreen() {
       timing,
       location: location.trim() || null,
       voiceRepliesDefault: voiceDefault,
+      notificationsEnabled: notifications,
     }
     try {
       const stored = await updatePreferences(session, preferences)
@@ -164,6 +167,7 @@ export default function ProfileScreen() {
                   keyboardType="decimal-pad"
                   placeholder="Any"
                   placeholderTextColor={colors.faint}
+                  accessibilityLabel="Budget ceiling amount"
                   style={[styles.input, styles.budgetInput]}
                 />
                 <TextInput
@@ -176,6 +180,7 @@ export default function ProfileScreen() {
                   maxLength={3}
                   placeholder="USD"
                   placeholderTextColor={colors.faint}
+                  accessibilityLabel="Currency code"
                   style={[styles.input, styles.currencyInput]}
                 />
               </View>
@@ -203,11 +208,14 @@ export default function ProfileScreen() {
                   returnKeyType="done"
                   placeholder="e.g. cleaning, web design"
                   placeholderTextColor={colors.faint}
+                  accessibilityLabel="Add an interest"
                   style={[styles.input, styles.flex1]}
                 />
                 <Pressable
                   onPress={addCategory}
                   disabled={!newCategory.trim() || categories.length >= MAX_CATEGORIES}
+                  accessibilityRole="button"
+                  accessibilityLabel="Add interest"
                   style={[styles.addBtn, !newCategory.trim() || categories.length >= MAX_CATEGORIES ? styles.disabled : null]}
                 >
                   <Text style={styles.addBtnText}>Add</Text>
@@ -224,6 +232,9 @@ export default function ProfileScreen() {
                   return (
                     <Pressable
                       key={opt.label}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}
+                      accessibilityLabel={`Timing: ${opt.label}`}
                       onPress={() => {
                         tapHaptic()
                         setTiming(opt.value)
@@ -249,6 +260,7 @@ export default function ProfileScreen() {
                 }}
                 placeholder="City or area"
                 placeholderTextColor={colors.faint}
+                accessibilityLabel="Location"
                 style={styles.input}
               />
             </View>
@@ -265,14 +277,40 @@ export default function ProfileScreen() {
                   setVoiceDefault(v)
                   markDirty()
                 }}
+                accessibilityLabel="Speak replies by default"
                 trackColor={{ false: 'rgba(255,255,255,0.16)', true: 'rgba(45,212,191,0.6)' }}
                 thumbColor={voiceDefault ? colors.signal : '#f4f3f4'}
               />
             </View>
 
+            {/* Notifications */}
+            <View style={[styles.field, styles.switchRow]}>
+              <View style={styles.flex1}>
+                <Text style={styles.fieldLabel}>Push notifications</Text>
+                <Text style={styles.fieldHint}>Seller replies, booking confirmations, and refunds.</Text>
+              </View>
+              <Switch
+                value={notifications}
+                onValueChange={(v) => {
+                  setNotifications(v)
+                  markDirty()
+                }}
+                accessibilityLabel="Push notifications"
+                trackColor={{ false: 'rgba(255,255,255,0.16)', true: 'rgba(45,212,191,0.6)' }}
+                thumbColor={notifications ? colors.signal : '#f4f3f4'}
+              />
+            </View>
+
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
-            <Pressable style={[styles.save, saving ? styles.disabled : null]} onPress={onSave} disabled={saving}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Save preferences"
+              accessibilityState={{ disabled: saving, busy: saving }}
+              style={[styles.save, saving ? styles.disabled : null]}
+              onPress={onSave}
+              disabled={saving}
+            >
               {saving ? (
                 <ActivityIndicator color="#001313" />
               ) : (
@@ -282,7 +320,7 @@ export default function ProfileScreen() {
           </>
         )}
 
-        <Pressable style={styles.signOut} onPress={handleSignOut}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Sign out" style={styles.signOut} onPress={handleSignOut}>
           <Text style={styles.signOutText}>Sign out</Text>
         </Pressable>
       </ScrollView>

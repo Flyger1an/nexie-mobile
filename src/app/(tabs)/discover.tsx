@@ -6,6 +6,7 @@ import {
   FlatList,
   Pressable,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -15,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { DiscoverCard } from '@/components/DiscoverCard'
 import { tapHaptic } from '@/lib/haptics'
-import { catalogSearchText, fetchCatalog } from '@/lib/discover-api'
+import { catalogCategories, catalogSearchText, fetchCatalog } from '@/lib/discover-api'
 import { colors, radius } from '@/lib/theme'
 import type { NexieCatalogPage } from '@/lib/types'
 
@@ -23,6 +24,7 @@ export default function DiscoverScreen() {
   const router = useRouter()
   const [pages, setPages] = useState<NexieCatalogPage[]>([])
   const [query, setQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
@@ -60,11 +62,16 @@ export default function DiscoverScreen() {
     }
   }, [])
 
+  const categories = useMemo(() => catalogCategories(pages), [pages])
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return pages
-    return pages.filter((p) => catalogSearchText(p).includes(q))
-  }, [pages, query])
+    return pages.filter((p) => {
+      if (activeCategory && (p.industry ?? '').toLowerCase() !== activeCategory.toLowerCase()) return false
+      if (q && !catalogSearchText(p).includes(q)) return false
+      return true
+    })
+  }, [pages, query, activeCategory])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -109,9 +116,26 @@ export default function DiscoverScreen() {
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
+          accessibilityLabel="Search businesses"
           style={styles.search}
         />
       </View>
+
+      {categories.length > 0 ? (
+        <View style={styles.chipsWrap}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipsRow}
+            keyboardShouldPersistTaps="handled"
+          >
+            <CategoryChip label="All" active={!activeCategory} onPress={() => setActiveCategory(null)} />
+            {categories.map((c) => (
+              <CategoryChip key={c} label={c} active={activeCategory === c} onPress={() => setActiveCategory(c)} />
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
 
       {loading ? (
         <View style={styles.center}>
@@ -148,10 +172,54 @@ export default function DiscoverScreen() {
   )
 }
 
+function CategoryChip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={() => {
+        tapHaptic()
+        onPress()
+      }}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      accessibilityLabel={`Filter by ${label}`}
+      style={[styles.chip, active ? styles.chipActive : null]}
+    >
+      <Text style={[styles.chipText, active ? styles.chipTextActive : null]}>{label}</Text>
+    </Pressable>
+  )
+}
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.bg,
+  },
+  chipsWrap: {
+    paddingBottom: 4,
+  },
+  chipsRow: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  chip: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  chipActive: {
+    borderColor: 'rgba(45,212,191,0.5)',
+    backgroundColor: 'rgba(45,212,191,0.14)',
+  },
+  chipText: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  chipTextActive: {
+    color: colors.signal,
   },
   header: {
     paddingHorizontal: 20,

@@ -87,6 +87,7 @@ export type NexiePreferences = {
   timing: NexieTiming | null
   location: string | null
   voiceRepliesDefault: boolean
+  notificationsEnabled: boolean
 }
 
 // A single business in the public Nexez agent catalog (agent-pages.json), normalized
@@ -98,6 +99,7 @@ export type NexieCatalogPage = {
   agentJsonUrl: string
   description: string
   location: string | null
+  industry: string | null
   currency: string
   readiness: number
   certified: boolean
