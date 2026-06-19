@@ -168,8 +168,8 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | Task | Area | Effort |
 |------|------|--------|
 | **Semantic search**: embeddings + pgvector over published pages; hybrid lexical+vector ranking (replaces in-memory ≤150 scan) | `nexez` + Supabase pgvector | L |
-| **Source-adapter abstraction**: refactor `search_pages` to a `SourceAdapter` interface; ship `nexez` adapter; register-by-config | `nexez/lib/agents` | M |
-| **Structured memory extraction**: replace regex `extractInterest` with LLM-extracted structured prefs (budget, categories, constraints) merged into `user_agents.memory` | `nexez/lib/agents/nexie.ts` | M |
+| ✅ **Source-adapter abstraction** (nexez `089f138`): `search_pages` delegates to a `SourceAdapter` registry via `searchAllSources` (fan-out → merge → rank → cap; failing source isolated, all-fail surfaces for fallback); `nexezAdapter` ships; register-by-config proven in tests (a stub joins the fan-out with zero agent-loop change) | `nexez/lib/agents` | M |
+| ✅ **Structured memory extraction** (nexez `ec06831`): replaced the regex `extractInterest` with high-precision deterministic signal extraction — `budget_observed` (only with an explicit ceiling cue, so no mis-learned stray $), `timing_observed`, cleaned/deduped interests — merged into `user_agents.memory` as SOFT hints (explicit prefs stay authoritative) + already injected into the prompt. Pure `nexie-memory.ts` + 8 tests. LLM-based extraction deferred (deterministic avoids per-turn cost) | `nexez/lib/agents/nexie.ts` | M |
 | **Streaming responses** (SSE) + incremental TTS on client | `nexez` route + client | L |
 | **Recommendations from other sources** (v1.x): a second adapter or recommendation tool that suggests beyond Nexez | `nexez` | L |
 | Tool-call observability: log tool latency, fallbacks, model errors to Sentry/analytics | `nexez` | S |
