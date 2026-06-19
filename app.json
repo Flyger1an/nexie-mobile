@@ -59,6 +59,7 @@
         }
       ],
       "expo-secure-store",
+      "expo-apple-authentication",
       [
         "@sentry/react-native",
         {

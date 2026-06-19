@@ -12,8 +12,11 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import * as AppleAuthentication from 'expo-apple-authentication'
+
 import { useAuth } from '@/context/auth'
 import { isOnboardingComplete } from '@/lib/onboarding'
+import { isAppleSignInSupported, isGoogleSignInConfigured, signInWithApple, signInWithGoogle } from '@/lib/social-auth'
 import { colors, radius } from '@/lib/theme'
 
 export default function WelcomeScreen() {
@@ -81,6 +84,20 @@ export default function WelcomeScreen() {
         : codeSent
           ? 'Reset password'
           : 'Send reset code'
+
+  // Social sign-in: on success, onAuthStateChange sets the session → the effect above routes.
+  async function handleSocial(provider: () => Promise<boolean>) {
+    setError('')
+    setInfo('')
+    setBusy(true)
+    try {
+      await provider()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign-in failed.')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -200,6 +217,36 @@ export default function WelcomeScreen() {
             <Pressable accessibilityRole="button" accessibilityLabel="Forgot password" onPress={() => switchMode('reset')}>
               <Text style={styles.link}>Forgot password?</Text>
             </Pressable>
+          ) : null}
+
+          {mode !== 'reset' && (isAppleSignInSupported || isGoogleSignInConfigured) ? (
+            <View style={styles.socialBlock}>
+              <View style={styles.dividerRow}>
+                <View style={styles.divider} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.divider} />
+              </View>
+              {isAppleSignInSupported ? (
+                <AppleAuthentication.AppleAuthenticationButton
+                  buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+                  cornerRadius={18}
+                  style={styles.appleButton}
+                  onPress={() => handleSocial(signInWithApple)}
+                />
+              ) : null}
+              {isGoogleSignInConfigured ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Continue with Google"
+                  disabled={busy}
+                  onPress={() => handleSocial(signInWithGoogle)}
+                  style={[styles.googleButton, busy ? styles.disabled : null]}
+                >
+                  <Text style={styles.googleButtonText}>Continue with Google</Text>
+                </Pressable>
+              ) : null}
+            </View>
           ) : null}
 
           <Text style={styles.note}>Uses the same secure Supabase account as Nexez.</Text>
@@ -350,5 +397,42 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '900',
     letterSpacing: -0.4,
+  },
+  socialBlock: {
+    gap: 10,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginVertical: 2,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  dividerText: {
+    color: colors.faint,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  appleButton: {
+    height: 50,
+    width: '100%',
+  },
+  googleButton: {
+    minHeight: 50,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  googleButtonText: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '800',
   },
 })
