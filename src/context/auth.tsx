@@ -10,6 +10,10 @@ type AuthContextValue = {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
+  /** Send a password-reset code to the email (Supabase recovery OTP). */
+  requestPasswordReset: (email: string) => Promise<void>
+  /** Verify the emailed code, then set the new password (leaves the user signed in). */
+  confirmPasswordReset: (email: string, code: string, newPassword: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -54,6 +58,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
       async signOut() {
         const { error } = await supabase.auth.signOut()
         if (error) throw error
+      },
+      async requestPasswordReset(email) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email)
+        if (error) throw error
+      },
+      async confirmPasswordReset(email, code, newPassword) {
+        // The emailed recovery OTP authenticates a one-time recovery session...
+        const { error: verifyError } = await supabase.auth.verifyOtp({ email, token: code, type: 'recovery' })
+        if (verifyError) throw verifyError
+        // ...which authorizes setting the new password (then they stay signed in).
+        const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
+        if (updateError) throw updateError
       },
     }),
     [loading, session],
