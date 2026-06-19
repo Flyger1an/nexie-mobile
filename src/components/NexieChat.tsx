@@ -52,6 +52,9 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
   const [input, setInput] = useState('')
   const [appliedSeed, setAppliedSeed] = useState<string | undefined>()
   const [busy, setBusy] = useState(false)
+  // True only during a streamed chat turn (which renders its own inline placeholder bubble), so the
+  // list footer indicator is reserved for the non-streamed approval path.
+  const [streamingTurn, setStreamingTurn] = useState(false)
   const [error, setError] = useState('')
   const [messages, setMessages] = useState<NexieMessage[]>(resumeThreadId ? [] : [WELCOME])
   const [speakEnabled, setSpeakEnabled] = useState(false)
@@ -101,6 +104,7 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
 
     setInput('')
     setBusy(true)
+    setStreamingTurn(true)
     setError('')
     tapHaptic()
     stopSpeaking()
@@ -144,6 +148,7 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
       setMessages((current) => current.map((m) => (m.id === assistantId ? { ...m, content: messageText } : m)))
     } finally {
       setBusy(false)
+      setStreamingTurn(false)
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50)
     }
   }
@@ -284,9 +289,9 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
           )}
           ListFooterComponent={
             <View style={styles.footerSpace}>
-              {/* Only for turns without an inline placeholder bubble (e.g. approval decisions);
-                  streamed chat turns show the indicator inside their own assistant bubble. */}
-              {busy && !messages.some((m) => m.role === 'assistant' && !m.content) ? (
+              {/* Only for non-streamed turns (e.g. approval decisions); streamed chat turns show
+                  the indicator inside their own assistant bubble the whole time. */}
+              {busy && !streamingTurn ? (
                 <View style={styles.thinking}>
                   <ActivityIndicator color={colors.signal} />
                   <Text style={styles.thinkingText}>Nexxi is working...</Text>
