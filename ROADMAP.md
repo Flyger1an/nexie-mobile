@@ -186,7 +186,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 |------|-----------|--------|
 | **Sign in with Apple** (required by Apple once social login exists) | `expo-apple-authentication` + Supabase OAuth | M |
 | **Google sign-in** | Supabase OAuth + `expo-web-browser` / `expo-auth-session` | M |
-| **Password reset** + email verification flow | Supabase auth + deep link | M |
+| ✅ **Password reset** (in-app recovery OTP, mobile `60eb174`) — "Forgot password?" → email → `resetPasswordForEmail` sends a code → `verifyOtp(type:recovery)` + `updateUser(password)`, stays signed in. No deep link / native rebuild. **OWNER CONFIG: Supabase "Reset Password" email template must include `{{ .Token }}`** (default is link-only) — then it's testable e2e. | Supabase auth | M |
 | ✅ **Account deletion** in-app (Apple 5.1.1(v)) — nexez `55ac302`, mobile `d5686ac`. `deleteUserAccount` clears all ~21 owned tables (agent + seller), anonymizes buyer PII on sellers' orders, deletes the auth user last; `POST /api/account/delete` now bearer+cookie auth + `{confirm:true}` + rate-limit (the old route was web-only + deleted 6 tables); Profile "Danger zone" type-DELETE gate. 7 tests; route verified 400/401. **On-device test needs a THROWAWAY account — the emulator is signed in as the real owner.** | UI + `nexez` admin endpoint | M |
 | Session expiry/refresh edge cases; signed-out deep-link handling | auth | S |
 | Re-auth gate before destructive actions (delete account) | UI | S |
