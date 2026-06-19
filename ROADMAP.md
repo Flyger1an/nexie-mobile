@@ -138,7 +138,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 
 ---
 
-### P2 — Product Surfaces & Navigation 🟡 (nav core `ce60c47` + preferences `03abdcd` shipped)
+### P2 — Product Surfaces & Navigation 🟢 (all surfaces shipped; only the on-device a11y/design-system sweep remains)
 *Goal: turn one chat screen into a navigable app.*
 
 | Task | Area | Effort |
@@ -146,12 +146,12 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | ✅ Tab navigation: **Chat · Discover · Orders · Profile** (`app/(tabs)/`, auth-gated, emoji icons; deep-links switch tabs) | `expo-router` tabs | M |
 | ✅ **Thread history**: list `agent_threads`, resume (restores cards), rename, archive, new-chat (History modal + chat-header buttons; `GET/PATCH /threads[/id]`) | UI + `GET threads` endpoint | M |
 | ✅ **Orders tab**: list orders/negotiations w/ status + open the buyer portal (refund/report live there) | UI + P1b endpoint | L |
-| ✅ **Discover tab** (basic): browse the public `agent-pages.json` catalog w/ client-side search → Ask Nexxi (seeds chat) / View page. Curated categories + trending feed still deferred | UI + backend feed | L |
-| ✅ **Profile/Preferences**: budget, interests, timing, location, voice-replies default → `user_agents.preferences` (server-validated; the agent honors them every LLM turn). Notification on/off still deferred | UI | M |
+| ✅ **Discover tab**: browse the public `agent-pages.json` catalog w/ search + **category filter chips** (from page `industry`, `c58a1d8`) → Ask Nexxi (seeds chat) / View page. Trending/curated ranking still deferred (needs an engagement signal) | UI + backend feed | L |
+| ✅ **Profile/Preferences**: budget, interests, timing, location, voice-replies default, **notifications on/off** (server-gated, `c58a1d8`/`b4ce5cf`) → `user_agents.preferences` (server-validated; the agent honors them every LLM turn) | UI | M |
 | ✅ OfferCard **Book/Negotiate act directly** — tap submits the action turn (→ approval card), no more prefill; buttons disable mid-turn | `OfferCard.tsx` | S |
 | ✅ Onboarding flow (3 value-prop panels, once per device via SecureStore flag, Skip/Get-started → `/chat`) + **in-context push-permission priming** (PushBridge defers the OS prompt until onboarded; onboarding requests it on finish) | UI | M |
-| Empty states, loading skeletons, error retry across all screens | UI | M |
-| Design system pass: tokens, typography scale, dark theme polish, accessibility (Dynamic Type, VoiceOver labels, contrast) | `src/lib/theme.ts` + a11y | L |
+| ✅ Empty / loading / error-retry states across screens (spinners + empty states + retry; polished shimmer skeletons optional) | UI | M |
+| 🟡 Design system + a11y: **accessibility roles/labels across core flows shipped** (`ebb1817`); design-system tokens, typography scale, Dynamic Type, contrast audit + **on-device VoiceOver/TalkBack sweep** still remaining (the exit-gate item) | `src/lib/theme.ts` + a11y | L |
 
 **Exit Gate:** a new user can onboard, run a discovery, see results in Discover, transact, and find the result in Orders — without ever needing to know "threads" exist; full VoiceOver pass on primary flows.
 
