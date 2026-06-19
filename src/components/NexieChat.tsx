@@ -14,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useAuth } from '@/context/auth'
 import { sendNexieTurn } from '@/lib/nexie-api'
+import { errorHaptic, successHaptic, tapHaptic } from '@/lib/haptics'
+import { speak, stopSpeaking } from '@/lib/speech'
 import { colors, radius } from '@/lib/theme'
 import type { NexieCard, NexieMessage, NexieMode } from '@/lib/types'
 
@@ -41,6 +43,7 @@ export function NexieChat() {
       content: 'I am Nexie. Tell me what you want to buy, book, or negotiate, and I will search the agent-ready web for you.',
     },
   ])
+  const [speakEnabled, setSpeakEnabled] = useState(false)
   const listRef = useRef<FlatList<NexieMessage>>(null)
 
   async function submit(text = input, mode: NexieMode = 'text') {
@@ -50,6 +53,8 @@ export function NexieChat() {
     setInput('')
     setBusy(true)
     setError('')
+    tapHaptic()
+    stopSpeaking()
     setMessages((current) => [...current, { id: cryptoId(), role: 'user', content: message }])
 
     try {
@@ -69,9 +74,12 @@ export function NexieChat() {
           cards: result.cards,
         },
       ])
+      if (result.cards?.some((c) => c.type === 'action_result' && c.status === 'success')) successHaptic()
+      if (mode === 'voice' || speakEnabled) speak(result.message)
     } catch (err) {
       const messageText = err instanceof Error ? err.message : 'Nexie could not respond.'
       setError(messageText)
+      errorHaptic()
       setMessages((current) => [...current, { id: cryptoId(), role: 'assistant', content: messageText }])
     } finally {
       setBusy(false)
@@ -84,6 +92,7 @@ export function NexieChat() {
 
     setBusy(true)
     setError('')
+    stopSpeaking()
     try {
       const result = await sendNexieTurn({
         session,
@@ -100,9 +109,12 @@ export function NexieChat() {
           cards: result.cards,
         },
       ])
+      if (result.cards?.some((c) => c.type === 'action_result' && c.status === 'success')) successHaptic()
+      if (speakEnabled) speak(result.message)
     } catch (err) {
       const messageText = err instanceof Error ? err.message : 'Nexie could not update that approval.'
       setError(messageText)
+      errorHaptic()
       setMessages((current) => [...current, { id: cryptoId(), role: 'assistant', content: messageText }])
     } finally {
       setBusy(false)
@@ -129,9 +141,24 @@ export function NexieChat() {
             <Text style={styles.kicker}>Nexie mobile</Text>
             <Text style={styles.title}>Your personal buyer agent</Text>
           </View>
-          <View style={styles.livePill}>
-            <View style={styles.liveDot} />
-            <Text style={styles.liveText}>Live</Text>
+          <View style={styles.headerRight}>
+            <Pressable
+              onPress={() => {
+                tapHaptic()
+                const next = !speakEnabled
+                setSpeakEnabled(next)
+                if (!next) stopSpeaking()
+              }}
+              style={[styles.speakToggle, speakEnabled ? styles.speakToggleOn : null]}
+              accessibilityRole="button"
+              accessibilityLabel={speakEnabled ? 'Turn off spoken replies' : 'Turn on spoken replies'}
+            >
+              <Text style={styles.speakToggleText}>{speakEnabled ? '🔊' : '🔇'}</Text>
+            </Pressable>
+            <View style={styles.livePill}>
+              <View style={styles.liveDot} />
+              <Text style={styles.liveText}>Live</Text>
+            </View>
           </View>
         </View>
 
@@ -263,6 +290,28 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: -0.9,
     marginTop: 4,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  speakToggle: {
+    width: 38,
+    height: 38,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+  },
+  speakToggleOn: {
+    borderColor: 'rgba(45,212,191,0.5)',
+    backgroundColor: 'rgba(45,212,191,0.14)',
+  },
+  speakToggleText: {
+    fontSize: 16,
   },
   livePill: {
     flexDirection: 'row',

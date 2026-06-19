@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
+import { decisionHaptic } from '@/lib/haptics'
 import { colors, radius } from '@/lib/theme'
 import type { NexieCard } from '@/lib/types'
 
@@ -25,14 +26,20 @@ export function ApprovalCard({ card, disabled, onDecision }: ApprovalCardProps) 
         <Pressable
           disabled={locked}
           style={[styles.decline, locked ? styles.disabled : null]}
-          onPress={() => onDecision(card.id, 'rejected')}
+          onPress={() => {
+            decisionHaptic()
+            onDecision(card.id, 'rejected')
+          }}
         >
           <Text style={styles.declineText}>Decline</Text>
         </Pressable>
         <Pressable
           disabled={locked}
           style={[styles.approve, locked ? styles.disabled : null]}
-          onPress={() => onDecision(card.id, 'approved')}
+          onPress={() => {
+            decisionHaptic()
+            onDecision(card.id, 'approved')
+          }}
         >
           <Text style={styles.approveText}>Approve</Text>
         </Pressable>

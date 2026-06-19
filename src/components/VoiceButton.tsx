@@ -2,6 +2,8 @@ import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-spe
 import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
+import { tapHaptic } from '@/lib/haptics'
+import { stopSpeaking } from '@/lib/speech'
 import { colors } from '@/lib/theme'
 
 type VoiceButtonProps = {
@@ -29,6 +31,7 @@ export function VoiceButton({ onTranscript, disabled }: VoiceButtonProps) {
 
   async function toggle() {
     if (disabled) return
+    tapHaptic()
     if (recognizing) {
       ExpoSpeechRecognitionModule.stop()
       return
@@ -40,6 +43,7 @@ export function VoiceButton({ onTranscript, disabled }: VoiceButtonProps) {
       return
     }
 
+    stopSpeaking() // don't talk over the user while they dictate
     ExpoSpeechRecognitionModule.start({
       lang: 'en-US',
       interimResults: true,
