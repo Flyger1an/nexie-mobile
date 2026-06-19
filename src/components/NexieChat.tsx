@@ -15,9 +15,9 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/context/auth'
 import { fetchPreferences } from '@/lib/preferences-api'
 import { fetchThreadMessages } from '@/lib/threads-api'
-import { sendNexieTurn } from '@/lib/nexie-api'
+import { sendNexieTurn, streamNexieTurn } from '@/lib/nexie-api'
 import { errorHaptic, successHaptic, tapHaptic } from '@/lib/haptics'
-import { speak, stopSpeaking } from '@/lib/speech'
+import { createIncrementalSpeaker, speak, stopSpeaking } from '@/lib/speech'
 import { colors, radius } from '@/lib/theme'
 import type { NexieCard, NexieMessage, NexieMode } from '@/lib/types'
 
@@ -104,32 +104,44 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
     setError('')
     tapHaptic()
     stopSpeaking()
-    setMessages((current) => [...current, { id: cryptoId(), role: 'user', content: message }])
+
+    // Add the user bubble + an empty assistant bubble we fill as tokens stream in.
+    const assistantId = cryptoId()
+    setMessages((current) => [
+      ...current,
+      { id: cryptoId(), role: 'user', content: message },
+      { id: assistantId, role: 'assistant', content: '' },
+    ])
+    const speaker = mode === 'voice' || speakEnabled ? createIncrementalSpeaker() : null
+    let streamed = ''
 
     try {
-      const result = await sendNexieTurn({
-        session,
-        threadId,
-        message,
-        mode,
-      })
-      setThreadId(result.threadId)
-      setMessages((current) => [
-        ...current,
+      const result = await streamNexieTurn(
+        { session, threadId, message, mode },
         {
-          id: cryptoId(),
-          role: 'assistant',
-          content: result.message,
-          cards: result.cards,
+          onToken: (delta) => {
+            streamed += delta
+            setMessages((current) => current.map((m) => (m.id === assistantId ? { ...m, content: streamed } : m)))
+            speaker?.push(delta)
+          },
         },
-      ])
+      )
+      setThreadId(result.threadId)
+      // done.message is authoritative — reconcile the bubble (drops any pre-tool preamble) + attach cards.
+      setMessages((current) =>
+        current.map((m) => (m.id === assistantId ? { ...m, content: result.message, cards: result.cards } : m)),
+      )
       if (result.cards?.some((c) => c.type === 'action_result' && c.status === 'success')) successHaptic()
-      if (mode === 'voice' || speakEnabled) speak(result.message)
+      if (speaker) {
+        if (!streamed) speaker.push(result.message) // defensive: voice the reply if nothing streamed
+        speaker.flush()
+      }
     } catch (err) {
       const messageText = err instanceof Error ? err.message : 'Nexxi could not respond.'
       setError(messageText)
       errorHaptic()
-      setMessages((current) => [...current, { id: cryptoId(), role: 'assistant', content: messageText }])
+      speaker?.cancel()
+      setMessages((current) => current.map((m) => (m.id === assistantId ? { ...m, content: messageText } : m)))
     } finally {
       setBusy(false)
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50)
@@ -246,7 +258,14 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
             <View style={[styles.messageWrap, item.role === 'user' ? styles.userWrap : styles.assistantWrap]}>
               <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.assistantBubble]}>
                 {item.role === 'assistant' ? <Text style={styles.assistantLabel}>Nexxi</Text> : null}
-                <Text style={[styles.messageText, item.role === 'user' ? styles.userText : styles.assistantText]}>{item.content}</Text>
+                {item.role === 'assistant' && !item.content ? (
+                  <View style={styles.thinking}>
+                    <ActivityIndicator color={colors.signal} />
+                    <Text style={styles.thinkingText}>Nexxi is working...</Text>
+                  </View>
+                ) : (
+                  <Text style={[styles.messageText, item.role === 'user' ? styles.userText : styles.assistantText]}>{item.content}</Text>
+                )}
               </View>
               {item.cards?.length ? (
                 <View style={styles.cards}>
@@ -265,7 +284,9 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
           )}
           ListFooterComponent={
             <View style={styles.footerSpace}>
-              {busy ? (
+              {/* Only for turns without an inline placeholder bubble (e.g. approval decisions);
+                  streamed chat turns show the indicator inside their own assistant bubble. */}
+              {busy && !messages.some((m) => m.role === 'assistant' && !m.content) ? (
                 <View style={styles.thinking}>
                   <ActivityIndicator color={colors.signal} />
                   <Text style={styles.thinkingText}>Nexxi is working...</Text>
