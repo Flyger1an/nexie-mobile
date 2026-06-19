@@ -138,15 +138,15 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 
 ---
 
-### P2 — Product Surfaces & Navigation 🟠
+### P2 — Product Surfaces & Navigation 🟡 (nav core shipped — `ce60c47`)
 *Goal: turn one chat screen into a navigable app.*
 
 | Task | Area | Effort |
 |------|------|--------|
-| Tab navigation: **Chat · Discover · Orders · Profile** (assets already include home/explore icons) | `expo-router` tabs | M |
+| ✅ Tab navigation: **Chat · Discover · Orders · Profile** (`app/(tabs)/`, auth-gated, emoji icons; deep-links switch tabs) | `expo-router` tabs | M |
 | **Thread history**: list `agent_threads`, resume, rename, archive, new-chat | UI + `GET threads` endpoint | M |
-| **Orders tab**: list orders/negotiations w/ status, timeline, refund/report actions (reuse `buyer-portal.ts` status copy) | UI + P1b endpoint | L |
-| **Discover tab**: curated/browsable Nexez pages (categories, trending), not just chat-driven | UI + backend feed | L |
+| ✅ **Orders tab**: list orders/negotiations w/ status + open the buyer portal (refund/report live there) | UI + P1b endpoint | L |
+| ✅ **Discover tab** (basic): browse the public `agent-pages.json` catalog w/ client-side search → Ask Nexie (seeds chat) / View page. Curated categories + trending feed still deferred | UI + backend feed | L |
 | **Profile/Preferences**: budget, categories, timing, location, voice on/off, notification prefs (writes `user_agents.preferences`) | UI | M |
 | Make OfferCard **Book/Negotiate act directly** (call the action) instead of pre-filling text | `OfferCard.tsx` | S |
 | Onboarding flow (value prop, permission priming, sample query) | UI | M |
