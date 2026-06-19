@@ -8,7 +8,15 @@ import { colors } from '@/lib/theme'
 // Focus is conveyed by opacity since emoji ignore tabBarActiveTintColor.
 function tabIcon(glyph: string) {
   return function Icon({ focused }: { focused: boolean }) {
-    return <Text style={[styles.icon, { opacity: focused ? 1 : 0.45 }]}>{glyph}</Text>
+    return (
+      <Text
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={[styles.icon, { opacity: focused ? 1 : 0.45 }]}
+      >
+        {glyph}
+      </Text>
+    )
   }
 }
 
@@ -37,10 +45,10 @@ export default function TabsLayout() {
         sceneStyle: { backgroundColor: colors.bg },
       }}
     >
-      <Tabs.Screen name="chat" options={{ title: 'Chat', tabBarIcon: tabIcon('💬') }} />
-      <Tabs.Screen name="discover" options={{ title: 'Discover', tabBarIcon: tabIcon('🧭') }} />
-      <Tabs.Screen name="orders" options={{ title: 'Orders', tabBarIcon: tabIcon('🧾') }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: tabIcon('👤') }} />
+      <Tabs.Screen name="chat" options={{ title: 'Chat', tabBarAccessibilityLabel: 'Chat', tabBarIcon: tabIcon('💬') }} />
+      <Tabs.Screen name="discover" options={{ title: 'Discover', tabBarAccessibilityLabel: 'Discover', tabBarIcon: tabIcon('🧭') }} />
+      <Tabs.Screen name="orders" options={{ title: 'Orders', tabBarAccessibilityLabel: 'Orders', tabBarIcon: tabIcon('🧾') }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarAccessibilityLabel: 'Profile', tabBarIcon: tabIcon('👤') }} />
     </Tabs>
   )
 }
