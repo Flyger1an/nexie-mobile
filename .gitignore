@@ -47,3 +47,6 @@ example
 
 # Firebase Android client config (FCM) — provided via EAS file env, never committed (public repo)
 google-services.json
+
+# JetBrains IDE config (personal, not shared)
+.idea/
