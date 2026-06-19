@@ -76,6 +76,19 @@ export type NexieOrdersResponse = {
   orders: NexieOrderSummary[]
 }
 
+// Buyer "standing preferences" — mirrors the nexez NexiePreferences shape (the agent
+// reads these every turn; the server is the source of truth + validator).
+export type NexieTiming = 'flexible' | 'this_week' | 'asap'
+
+export type NexiePreferences = {
+  budgetMax: number | null
+  currency: string
+  categories: string[]
+  timing: NexieTiming | null
+  location: string | null
+  voiceRepliesDefault: boolean
+}
+
 // A single business in the public Nexez agent catalog (agent-pages.json), normalized
 // from snake_case. Drives the Discover tab.
 export type NexieCatalogPage = {

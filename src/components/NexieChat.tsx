@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   FlatList,
@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useAuth } from '@/context/auth'
+import { fetchPreferences } from '@/lib/preferences-api'
 import { sendNexieTurn } from '@/lib/nexie-api'
 import { errorHaptic, successHaptic, tapHaptic } from '@/lib/haptics'
 import { speak, stopSpeaking } from '@/lib/speech'
@@ -46,6 +47,19 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
   ])
   const [speakEnabled, setSpeakEnabled] = useState(false)
   const listRef = useRef<FlatList<NexieMessage>>(null)
+  const voiceInitRef = useRef(false)
+
+  // Honor the buyer's "speak replies by default" preference, once on mount (best-effort:
+  // setState lives in the promise callback, never the synchronous effect body).
+  useEffect(() => {
+    if (!session || voiceInitRef.current) return
+    voiceInitRef.current = true
+    fetchPreferences(session)
+      .then((p) => {
+        if (p.voiceRepliesDefault) setSpeakEnabled(true)
+      })
+      .catch(() => {})
+  }, [session])
 
   // Adjust state when the seed prop changes (Discover -> "Ask Nexxi"): prefill the
   // composer once per distinct seed. Render-phase setState is React's recommended
