@@ -2,19 +2,21 @@ import type { Session } from '@supabase/supabase-js'
 
 import { apiRequest } from './api-client'
 import { env } from './env'
-import type { NexiePreferences } from './types'
+import type { NexieAvailableSource, NexiePreferences } from './types'
 
 const PREFERENCES_URL = `${env.nexieApiUrl}/preferences`
 
-type PreferencesResponse = { ok: boolean; preferences: NexiePreferences }
+type PreferencesResponse = { ok: boolean; preferences: NexiePreferences; availableSources?: NexieAvailableSource[] }
 
-/** The buyer's standing preferences (server returns a complete, normalized shape). */
-export async function fetchPreferences(session: Session): Promise<NexiePreferences> {
+export type PreferencesLoad = { preferences: NexiePreferences; availableSources: NexieAvailableSource[] }
+
+/** The buyer's standing preferences + the search sources currently available (configured). */
+export async function fetchPreferences(session: Session): Promise<PreferencesLoad> {
   const res = await apiRequest<PreferencesResponse>(PREFERENCES_URL, {
     method: 'GET',
     accessToken: session.access_token,
   })
-  return res.preferences
+  return { preferences: res.preferences, availableSources: res.availableSources ?? [] }
 }
 
 /** Replace the buyer's preferences. The server re-validates, so it returns the stored copy. */

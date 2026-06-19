@@ -68,8 +68,8 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
     if (!session || voiceInitRef.current) return
     voiceInitRef.current = true
     fetchPreferences(session)
-      .then((p) => {
-        if (p.voiceRepliesDefault) setSpeakEnabled(true)
+      .then(({ preferences }) => {
+        if (preferences.voiceRepliesDefault) setSpeakEnabled(true)
       })
       .catch(() => {})
   }, [session])

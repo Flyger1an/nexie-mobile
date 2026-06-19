@@ -16,7 +16,7 @@ import { useAuth } from '@/context/auth'
 import { tapHaptic, successHaptic } from '@/lib/haptics'
 import { fetchPreferences, updatePreferences } from '@/lib/preferences-api'
 import { colors, radius } from '@/lib/theme'
-import type { NexiePreferences, NexieTiming } from '@/lib/types'
+import type { NexieAvailableSource, NexiePreferences, NexieTiming } from '@/lib/types'
 
 const TIMING_OPTIONS: { label: string; value: NexieTiming | null }[] = [
   { label: 'Any', value: null },
@@ -45,6 +45,10 @@ export default function ProfileScreen() {
   const [location, setLocation] = useState('')
   const [voiceDefault, setVoiceDefault] = useState(false)
   const [notifications, setNotifications] = useState(true)
+  // Search sources: `sources` is the buyer's selection (null = all available); availableSources is
+  // what's actually configured server-side (always includes the core Nexez source).
+  const [sources, setSources] = useState<string[] | null>(null)
+  const [availableSources, setAvailableSources] = useState<NexieAvailableSource[]>([])
 
   function applyPrefs(p: NexiePreferences) {
     setBudgetText(p.budgetMax != null ? String(p.budgetMax) : '')
@@ -54,6 +58,19 @@ export default function ProfileScreen() {
     setLocation(p.location ?? '')
     setVoiceDefault(p.voiceRepliesDefault)
     setNotifications(p.notificationsEnabled)
+    setSources(p.sources)
+  }
+
+  // A source is on when there's no explicit selection (null = all) or it's in the list. The core
+  // Nexez source is always on. Toggling materializes the current set then adds/removes the id.
+  const externalIds = availableSources.filter((s) => !s.core).map((s) => s.id)
+  const isSourceOn = (id: string) => sources === null || sources.includes(id)
+  function toggleSource(id: string) {
+    tapHaptic()
+    const current = sources === null ? externalIds : sources
+    const next = current.includes(id) ? current.filter((s) => s !== id) : [...current, id]
+    setSources(next)
+    setSaved(false)
   }
 
   // Initial load. setState stays inside the promise callbacks (not the effect body).
@@ -61,8 +78,10 @@ export default function ProfileScreen() {
     if (!session) return
     let active = true
     fetchPreferences(session)
-      .then((p) => {
-        if (active) applyPrefs(p)
+      .then(({ preferences, availableSources: avail }) => {
+        if (!active) return
+        applyPrefs(preferences)
+        setAvailableSources(avail)
       })
       .catch(() => {
         // Soft-fail: keep the editable defaults so the user can still set + save.
@@ -114,6 +133,7 @@ export default function ProfileScreen() {
       location: location.trim() || null,
       voiceRepliesDefault: voiceDefault,
       notificationsEnabled: notifications,
+      sources,
     }
     try {
       const stored = await updatePreferences(session, preferences)
@@ -125,7 +145,7 @@ export default function ProfileScreen() {
     } finally {
       setSaving(false)
     }
-  }, [budgetText, categories, currency, location, saving, session, timing, voiceDefault])
+  }, [budgetText, categories, currency, location, notifications, saving, session, sources, timing, voiceDefault])
 
   async function handleSignOut() {
     await signOut()
@@ -299,6 +319,31 @@ export default function ProfileScreen() {
                 trackColor={{ false: 'rgba(255,255,255,0.16)', true: 'rgba(45,212,191,0.6)' }}
                 thumbColor={notifications ? colors.signal : '#f4f3f4'}
               />
+            </View>
+
+            {/* Search sources */}
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>Search sources</Text>
+              <Text style={styles.fieldHint}>Nexez offers are bookable. Other sources add discovery results you can view.</Text>
+              {availableSources.map((src) => (
+                <View key={src.id} style={styles.sourceRow}>
+                  <Text style={styles.sourceLabel}>{src.label}</Text>
+                  {src.core ? (
+                    <Text style={styles.sourceCore}>Always on</Text>
+                  ) : (
+                    <Switch
+                      value={isSourceOn(src.id)}
+                      onValueChange={() => toggleSource(src.id)}
+                      accessibilityLabel={`Include ${src.label} in search results`}
+                      trackColor={{ false: 'rgba(255,255,255,0.16)', true: 'rgba(45,212,191,0.6)' }}
+                      thumbColor={isSourceOn(src.id) ? colors.signal : '#f4f3f4'}
+                    />
+                  )}
+                </View>
+              ))}
+              {externalIds.length === 0 ? (
+                <Text style={styles.fieldHint}>More discovery sources appear here once they’re connected.</Text>
+              ) : null}
             </View>
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -493,6 +538,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
+  },
+  sourceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 40,
+  },
+  sourceLabel: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  sourceCore: {
+    color: colors.faint,
+    fontSize: 12,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   error: {
     color: colors.danger,

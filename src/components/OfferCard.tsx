@@ -13,15 +13,25 @@ type OfferCardProps = {
 }
 
 export function OfferCard({ card, onBook, onNegotiate, disabled }: OfferCardProps) {
+  // External (discovery-only) results carry a non-Nexez source — no offerKey, so they show View only.
+  const external = !!card.source && card.source.id !== 'nexez'
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={styles.mark} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Text style={styles.markText}>N</Text>
+        <View
+          style={[styles.mark, external ? styles.markExternal : null]}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          <Text style={[styles.markText, external ? styles.markTextExternal : null]}>
+            {external ? card.source!.label.charAt(0).toUpperCase() : 'N'}
+          </Text>
         </View>
         <View style={styles.titleWrap}>
           <Text style={styles.title}>{card.title}</Text>
-          <Text style={styles.subline}>/{card.slug} · {card.subtitle}</Text>
+          <Text style={styles.subline}>
+            {external ? `via ${card.source!.label} · discovery` : `/${card.slug} · ${card.subtitle}`}
+          </Text>
         </View>
         {card.price ? <Text style={styles.price}>{card.price}</Text> : null}
       </View>
@@ -89,6 +99,12 @@ const styles = StyleSheet.create({
   markText: {
     color: colors.signal,
     fontWeight: '900',
+  },
+  markExternal: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  markTextExternal: {
+    color: colors.muted,
   },
   titleWrap: {
     flex: 1,

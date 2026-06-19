@@ -15,6 +15,8 @@ export type NexieCard =
       offerName: string | null
       checkoutUrl: string | null
       score: number
+      /** Which source surfaced this. Absent/`nexez` = bookable marketplace; others are discovery-only. */
+      source?: { id: string; label: string }
     }
   | {
       type: 'approval'
@@ -88,6 +90,15 @@ export type NexiePreferences = {
   location: string | null
   voiceRepliesDefault: boolean
   notificationsEnabled: boolean
+  /** Enabled search sources by id. null = all available; [] = Nexez only. Nexez is always searched. */
+  sources: string[] | null
+}
+
+// A search source the buyer can toggle (from GET /preferences). `core` (Nexez) is always on.
+export type NexieAvailableSource = {
+  id: string
+  label: string
+  core: boolean
 }
 
 // A single business in the public Nexez agent catalog (agent-pages.json), normalized
