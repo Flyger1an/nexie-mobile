@@ -13,7 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useAuth } from '@/context/auth'
-import { tapHaptic, successHaptic } from '@/lib/haptics'
+import { errorHaptic, tapHaptic, successHaptic } from '@/lib/haptics'
+import { deleteAccount } from '@/lib/account-api'
 import { fetchPreferences, updatePreferences } from '@/lib/preferences-api'
 import { colors, radius } from '@/lib/theme'
 import type { NexieAvailableSource, NexiePreferences, NexieTiming } from '@/lib/types'
@@ -150,6 +151,29 @@ export default function ProfileScreen() {
   async function handleSignOut() {
     await signOut()
     router.replace('/')
+  }
+
+  // Account deletion (App Store requirement): gated on typing DELETE, then a hard server-side
+  // wipe of the account + all data, then sign out.
+  const [confirmText, setConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+  const canDelete = confirmText.trim().toUpperCase() === 'DELETE'
+
+  async function handleDeleteAccount() {
+    if (!session || deleting || !canDelete) return
+    tapHaptic()
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      await deleteAccount(session)
+      await signOut()
+      router.replace('/')
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Could not delete your account. Try again or contact support.')
+      errorHaptic()
+      setDeleting(false)
+    }
   }
 
   return (
@@ -368,6 +392,39 @@ export default function ProfileScreen() {
         <Pressable accessibilityRole="button" accessibilityLabel="Sign out" style={styles.signOut} onPress={handleSignOut}>
           <Text style={styles.signOutText}>Sign out</Text>
         </Pressable>
+
+        {/* Danger zone — in-app account deletion (App Store requirement) */}
+        <View style={styles.dangerZone}>
+          <Text accessibilityRole="header" style={styles.dangerTitle}>Delete account</Text>
+          <Text style={styles.dangerHint}>
+            Permanently deletes your Nexez account and all associated data — chats, preferences, orders, and any seller pages. This can’t be undone.
+          </Text>
+          <TextInput
+            value={confirmText}
+            onChangeText={setConfirmText}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            placeholder="Type DELETE to confirm"
+            placeholderTextColor={colors.faint}
+            accessibilityLabel="Type DELETE to confirm account deletion"
+            style={[styles.input, styles.dangerInput]}
+          />
+          {deleteError ? <Text style={styles.error}>{deleteError}</Text> : null}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Permanently delete account"
+            accessibilityState={{ disabled: !canDelete || deleting, busy: deleting }}
+            disabled={!canDelete || deleting}
+            style={[styles.deleteBtn, !canDelete || deleting ? styles.disabled : null]}
+            onPress={handleDeleteAccount}
+          >
+            {deleting ? (
+              <ActivityIndicator color={colors.danger} />
+            ) : (
+              <Text style={styles.deleteBtnText}>Permanently delete account</Text>
+            )}
+          </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )
@@ -590,6 +647,42 @@ const styles = StyleSheet.create({
   signOutText: {
     color: colors.danger,
     fontSize: 15,
+    fontWeight: '900',
+  },
+  dangerZone: {
+    marginTop: 28,
+    gap: 10,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(251,113,133,0.3)',
+    backgroundColor: 'rgba(251,113,133,0.06)',
+    padding: 16,
+  },
+  dangerTitle: {
+    color: colors.danger,
+    fontSize: 15,
+    fontWeight: '900',
+  },
+  dangerHint: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  dangerInput: {
+    borderColor: 'rgba(251,113,133,0.4)',
+  },
+  deleteBtn: {
+    minHeight: 48,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  deleteBtnText: {
+    color: colors.danger,
+    fontSize: 14,
     fontWeight: '900',
   },
 })
