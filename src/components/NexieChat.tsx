@@ -256,7 +256,7 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
                       card={card}
                       disabled={busy}
                       onDecision={decide}
-                      onPrompt={(prompt) => setInput(prompt)}
+                      onAct={(message) => submit(message)}
                     />
                   ))}
                 </View>
@@ -316,15 +316,15 @@ function CardRenderer({
   card,
   disabled,
   onDecision,
-  onPrompt,
+  onAct,
 }: {
   card: NexieCard
   disabled: boolean
   onDecision: (approvalId: string, decision: 'approved' | 'rejected') => void
-  onPrompt: (prompt: string) => void
+  onAct: (message: string) => void
 }) {
   if (card.type === 'page_result') {
-    return <OfferCard card={card} onAskToBook={onPrompt} onAskToNegotiate={onPrompt} />
+    return <OfferCard card={card} onBook={onAct} onNegotiate={onAct} disabled={disabled} />
   }
   if (card.type === 'approval') {
     return <ApprovalCard card={card} disabled={disabled} onDecision={onDecision} />

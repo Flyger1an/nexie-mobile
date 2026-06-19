@@ -6,11 +6,13 @@ import type { NexieCard } from '@/lib/types'
 
 type OfferCardProps = {
   card: Extract<NexieCard, { type: 'page_result' }>
-  onAskToBook: (prompt: string) => void
-  onAskToNegotiate: (prompt: string) => void
+  /** Submit a booking/negotiation turn directly (produces an approval card to confirm). */
+  onBook: (message: string) => void
+  onNegotiate: (message: string) => void
+  disabled?: boolean
 }
 
-export function OfferCard({ card, onAskToBook, onAskToNegotiate }: OfferCardProps) {
+export function OfferCard({ card, onBook, onNegotiate, disabled }: OfferCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -33,14 +35,16 @@ export function OfferCard({ card, onAskToBook, onAskToNegotiate }: OfferCardProp
         {card.offerKey ? (
           <>
             <Pressable
-              style={styles.secondaryButton}
-              onPress={() => onAskToNegotiate(`Negotiate ${card.offerName || card.title} on /${card.slug} using offer ${card.offerKey}.`)}
+              disabled={disabled}
+              style={[styles.secondaryButton, disabled ? styles.disabled : null]}
+              onPress={() => onNegotiate(`Negotiate ${card.offerName || card.title} on /${card.slug} using offer ${card.offerKey}.`)}
             >
               <Text style={styles.secondaryText}>Negotiate</Text>
             </Pressable>
             <Pressable
-              style={styles.primaryButton}
-              onPress={() => onAskToBook(`Book ${card.offerName || card.title} on /${card.slug} using offer ${card.offerKey}.`)}
+              disabled={disabled}
+              style={[styles.primaryButton, disabled ? styles.disabled : null]}
+              onPress={() => onBook(`Book ${card.offerName || card.title} on /${card.slug} using offer ${card.offerKey}.`)}
             >
               <Text style={styles.primaryText}>Book</Text>
             </Pressable>
@@ -134,5 +138,8 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: '700',
     fontSize: 12,
+  },
+  disabled: {
+    opacity: 0.45,
   },
 })
