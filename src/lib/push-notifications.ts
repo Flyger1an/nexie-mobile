@@ -40,7 +40,7 @@ export async function registerPushTokenForSession(session: Session): Promise<{ r
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
-      name: 'Nexie',
+      name: 'Nexxi',
       importance: Notifications.AndroidImportance.DEFAULT,
     })
   }

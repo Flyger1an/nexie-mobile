@@ -19,7 +19,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
         <Text style={styles.title}>Profile</Text>
-        <Text style={styles.subtitle}>Nexie uses your Nexez account and keeps buyer memory scoped to you.</Text>
+        <Text style={styles.subtitle}>Nexxi uses your Nexez account and keeps buyer memory scoped to you.</Text>
 
         <View style={styles.card}>
           <Text style={styles.label}>Signed in as</Text>

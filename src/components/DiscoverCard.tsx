@@ -54,9 +54,9 @@ function DiscoverCardBase({ page, onAsk, onView }: DiscoverCardProps) {
           style={styles.ask}
           onPress={() => onAsk(page)}
           accessibilityRole="button"
-          accessibilityLabel={`Ask Nexie about ${page.name}`}
+          accessibilityLabel={`Ask Nexxi about ${page.name}`}
         >
-          <Text style={styles.askText}>Ask Nexie</Text>
+          <Text style={styles.askText}>Ask Nexxi</Text>
         </Pressable>
         <Pressable
           style={styles.view}

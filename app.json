@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Nexie",
+    "name": "Nexxi",
     "slug": "nexie-mobile",
     "owner": "nexez-ai",
     "version": "1.0.0",
@@ -14,8 +14,8 @@
       "icon": "./assets/expo.icon",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSSpeechRecognitionUsageDescription": "Allow Nexie to turn your voice into text for agent requests.",
-        "NSMicrophoneUsageDescription": "Allow Nexie to listen when you use voice input."
+        "NSSpeechRecognitionUsageDescription": "Allow Nexxi to turn your voice into text for agent requests.",
+        "NSMicrophoneUsageDescription": "Allow Nexxi to listen when you use voice input."
       }
     },
     "android": {
@@ -51,8 +51,8 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Allow Nexie to listen when you use voice input.",
-          "speechRecognitionPermission": "Allow Nexie to turn your voice into text for agent requests.",
+          "microphonePermission": "Allow Nexxi to listen when you use voice input.",
+          "speechRecognitionPermission": "Allow Nexxi to turn your voice into text for agent requests.",
           "androidSpeechServicePackages": [
             "com.google.android.googlequicksearchbox"
           ]

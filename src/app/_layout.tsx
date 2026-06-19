@@ -39,7 +39,7 @@ function ConfigErrorScreen({ missing }: { missing: string[] }) {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.kicker}>Nexie</Text>
+        <Text style={styles.kicker}>Nexxi</Text>
         <Text style={styles.title}>Configuration error</Text>
         <Text style={styles.body}>
           This build is missing required environment values. Set them in your EAS build profile (or

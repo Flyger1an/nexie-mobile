@@ -5,7 +5,7 @@ import { NexieChat } from '@/components/NexieChat'
 import { colors } from '@/lib/theme'
 
 export default function ChatScreen() {
-  // Discover's "Ask Nexie" navigates here with a `seed` prompt to prefill the composer.
+  // Discover's "Ask Nexxi" navigates here with a `seed` prompt to prefill the composer.
   const { seed } = useLocalSearchParams<{ seed?: string }>()
   const initialPrompt = typeof seed === 'string' ? seed : undefined
 

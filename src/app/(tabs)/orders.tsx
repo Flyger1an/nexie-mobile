@@ -72,7 +72,7 @@ export default function OrdersScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Orders</Text>
-        <Text style={styles.subtitle}>Everything Nexie booked or negotiated for you.</Text>
+        <Text style={styles.subtitle}>Everything Nexxi booked or negotiated for you.</Text>
       </View>
 
       {loading ? (
@@ -90,7 +90,7 @@ export default function OrdersScreen() {
         <View style={styles.center}>
           <Text style={styles.emptyTitle}>No orders yet</Text>
           <Text style={styles.emptyBody}>
-            When you book or negotiate with Nexie, your orders and their status appear here.
+            When you book or negotiate with Nexxi, your orders and their status appear here.
           </Text>
         </View>
       ) : (

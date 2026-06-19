@@ -97,7 +97,7 @@ export default function DiscoverScreen() {
       <View style={styles.header}>
         <Text style={styles.kicker}>Discover</Text>
         <Text style={styles.title}>Agent-ready businesses</Text>
-        <Text style={styles.subtitle}>Browse the Nexez directory, then ask Nexie to compare, negotiate, or book.</Text>
+        <Text style={styles.subtitle}>Browse the Nexez directory, then ask Nexxi to compare, negotiate, or book.</Text>
       </View>
 
       <View style={styles.searchWrap}>

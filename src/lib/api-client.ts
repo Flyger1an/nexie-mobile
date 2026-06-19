@@ -1,10 +1,10 @@
-// Centralized fetch client for the Nexie backend.
+// Centralized fetch client for the Nexxi backend.
 //
 // Responsibilities: bearer-auth injection, per-request timeout (combined with any
 // caller AbortSignal), typed error classification, and idempotency-aware retries.
 //
 // Retry policy: GETs are assumed idempotent and retried with backoff on
-// network/timeout/5xx. Non-GET requests are NOT auto-retried by default — a Nexie
+// network/timeout/5xx. Non-GET requests are NOT auto-retried by default — a Nexxi
 // turn can create an approval or execute a booking/negotiation, and a blind retry
 // after a lost response could duplicate that side effect. Callers that know a POST
 // is safe to repeat can opt in via `retries`.
@@ -77,10 +77,10 @@ function mapHttpError(status: number, payload: Record<string, unknown>): NexieAp
   const message = typeof payload.error === 'string' ? payload.error : `Request failed (HTTP ${status}).`
   const detail = typeof payload.detail === 'string' ? payload.detail : undefined
   if (status === 401 || status === 403 || payload.code === 'auth_required') {
-    return new NexieApiError('auth_required', message || 'Sign in to use Nexie.', { status, detail })
+    return new NexieApiError('auth_required', message || 'Sign in to use Nexxi.', { status, detail })
   }
   if (status === 429) return new NexieApiError('rate_limited', message || 'Slow down a moment and try again.', { status, detail })
-  if (status >= 500) return new NexieApiError('server', message || 'Nexie hit a server error.', { status, detail })
+  if (status >= 500) return new NexieApiError('server', message || 'Nexxi hit a server error.', { status, detail })
   if (status >= 400) return new NexieApiError('bad_request', message, { status, detail })
   return new NexieApiError('unknown', message, { status, detail })
 }
@@ -140,8 +140,8 @@ export async function apiRequest<T>(url: string, options: ApiRequestOptions = {}
 function classifyThrown(raw: unknown, didTimeout: boolean, externalAborted: boolean): NexieApiError {
   if (raw instanceof NexieApiError) return raw
   if (externalAborted) return new NexieApiError('canceled', 'Request canceled.')
-  if (didTimeout) return new NexieApiError('timeout', 'Nexie took too long to respond. Try again.')
+  if (didTimeout) return new NexieApiError('timeout', 'Nexxi took too long to respond. Try again.')
   // fetch throws a TypeError for network/DNS/connection failures in RN.
   const message = raw instanceof Error ? raw.message : 'Network request failed.'
-  return new NexieApiError('network', 'Could not reach Nexie. Check your connection.', { detail: message })
+  return new NexieApiError('network', 'Could not reach Nexxi. Check your connection.', { detail: message })
 }

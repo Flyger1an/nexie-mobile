@@ -41,13 +41,13 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
     {
       id: 'welcome',
       role: 'assistant',
-      content: 'I am Nexie. Tell me what you want to buy, book, or negotiate, and I will search the agent-ready web for you.',
+      content: 'I am Nexxi. Tell me what you want to buy, book, or negotiate, and I will search the agent-ready web for you.',
     },
   ])
   const [speakEnabled, setSpeakEnabled] = useState(false)
   const listRef = useRef<FlatList<NexieMessage>>(null)
 
-  // Adjust state when the seed prop changes (Discover -> "Ask Nexie"): prefill the
+  // Adjust state when the seed prop changes (Discover -> "Ask Nexxi"): prefill the
   // composer once per distinct seed. Render-phase setState is React's recommended
   // alternative to an effect here, and it keeps the live thread/history intact.
   if (initialPrompt && initialPrompt !== appliedSeed) {
@@ -86,7 +86,7 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
       if (result.cards?.some((c) => c.type === 'action_result' && c.status === 'success')) successHaptic()
       if (mode === 'voice' || speakEnabled) speak(result.message)
     } catch (err) {
-      const messageText = err instanceof Error ? err.message : 'Nexie could not respond.'
+      const messageText = err instanceof Error ? err.message : 'Nexxi could not respond.'
       setError(messageText)
       errorHaptic()
       setMessages((current) => [...current, { id: cryptoId(), role: 'assistant', content: messageText }])
@@ -121,7 +121,7 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
       if (result.cards?.some((c) => c.type === 'action_result' && c.status === 'success')) successHaptic()
       if (speakEnabled) speak(result.message)
     } catch (err) {
-      const messageText = err instanceof Error ? err.message : 'Nexie could not update that approval.'
+      const messageText = err instanceof Error ? err.message : 'Nexxi could not update that approval.'
       setError(messageText)
       errorHaptic()
       setMessages((current) => [...current, { id: cryptoId(), role: 'assistant', content: messageText }])
@@ -147,7 +147,7 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
       >
         <View style={styles.header}>
           <View>
-            <Text style={styles.kicker}>Nexie mobile</Text>
+            <Text style={styles.kicker}>Nexxi mobile</Text>
             <Text style={styles.title}>Your personal buyer agent</Text>
           </View>
           <View style={styles.headerRight}>
@@ -179,7 +179,7 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
           renderItem={({ item }) => (
             <View style={[styles.messageWrap, item.role === 'user' ? styles.userWrap : styles.assistantWrap]}>
               <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.assistantBubble]}>
-                {item.role === 'assistant' ? <Text style={styles.assistantLabel}>Nexie</Text> : null}
+                {item.role === 'assistant' ? <Text style={styles.assistantLabel}>Nexxi</Text> : null}
                 <Text style={[styles.messageText, item.role === 'user' ? styles.userText : styles.assistantText]}>{item.content}</Text>
               </View>
               {item.cards?.length ? (
@@ -202,7 +202,7 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
               {busy ? (
                 <View style={styles.thinking}>
                   <ActivityIndicator color={colors.signal} />
-                  <Text style={styles.thinkingText}>Nexie is working...</Text>
+                  <Text style={styles.thinkingText}>Nexxi is working...</Text>
                 </View>
               ) : null}
             </View>
@@ -228,7 +228,7 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
             value={input}
             onChangeText={setInput}
             multiline
-            placeholder="Ask Nexie to find, negotiate, or book..."
+            placeholder="Ask Nexxi to find, negotiate, or book..."
             placeholderTextColor={colors.faint}
             style={styles.input}
           />
@@ -240,7 +240,7 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
             <Text style={styles.sendText}>Send</Text>
           </Pressable>
         </View>
-        <Text style={styles.disclaimer}>Nexie asks before submitting offers or opening checkout.</Text>
+        <Text style={styles.disclaimer}>Nexxi asks before submitting offers or opening checkout.</Text>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )

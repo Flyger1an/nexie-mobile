@@ -55,7 +55,7 @@ export default function WelcomeScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
         <View style={styles.hero}>
           <View style={styles.orb} />
-          <Text style={styles.kicker}>Nexie</Text>
+          <Text style={styles.kicker}>Nexxi</Text>
           <Text style={styles.title}>Shop the agent-ready web with your personal buyer agent.</Text>
           <Text style={styles.subtitle}>
             Search Nexez pages, get service recommendations, negotiate terms, and start bookings by voice or text.
@@ -95,7 +95,7 @@ export default function WelcomeScreen() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <Pressable disabled={busy || !email || !password} onPress={submit} style={[styles.primary, busy || !email || !password ? styles.disabled : null]}>
-            {busy ? <ActivityIndicator color="#001313" /> : <Text style={styles.primaryText}>{mode === 'signin' ? 'Continue' : 'Create Nexie account'}</Text>}
+            {busy ? <ActivityIndicator color="#001313" /> : <Text style={styles.primaryText}>{mode === 'signin' ? 'Continue' : 'Create Nexxi account'}</Text>}
           </Pressable>
           <Text style={styles.note}>Uses the same secure Supabase account as Nexez.</Text>
         </View>
