@@ -148,8 +148,8 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | ✅ **Orders tab**: list orders/negotiations w/ status + open the buyer portal (refund/report live there) | UI + P1b endpoint | L |
 | ✅ **Discover tab** (basic): browse the public `agent-pages.json` catalog w/ client-side search → Ask Nexxi (seeds chat) / View page. Curated categories + trending feed still deferred | UI + backend feed | L |
 | ✅ **Profile/Preferences**: budget, interests, timing, location, voice-replies default → `user_agents.preferences` (server-validated; the agent honors them every LLM turn). Notification on/off still deferred | UI | M |
-| Make OfferCard **Book/Negotiate act directly** (call the action) instead of pre-filling text | `OfferCard.tsx` | S |
-| ✅ Onboarding flow (3 value-prop panels, once per device via SecureStore flag, Skip/Get-started → `/chat`). Tighter permission priming (defer the OS push prompt until after onboarding) still deferred | UI | M |
+| ✅ OfferCard **Book/Negotiate act directly** — tap submits the action turn (→ approval card), no more prefill; buttons disable mid-turn | `OfferCard.tsx` | S |
+| ✅ Onboarding flow (3 value-prop panels, once per device via SecureStore flag, Skip/Get-started → `/chat`) + **in-context push-permission priming** (PushBridge defers the OS prompt until onboarded; onboarding requests it on finish) | UI | M |
 | Empty states, loading skeletons, error retry across all screens | UI | M |
 | Design system pass: tokens, typography scale, dark theme polish, accessibility (Dynamic Type, VoiceOver labels, contrast) | `src/lib/theme.ts` + a11y | L |
 
