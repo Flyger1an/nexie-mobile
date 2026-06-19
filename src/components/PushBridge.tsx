@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 
 import { useAuth } from '@/context/auth'
 import { captureError } from '@/lib/observability'
+import { isOnboardingComplete } from '@/lib/onboarding'
 import { registerPushTokenForSession } from '@/lib/push-notifications'
 
 type PushData = { type?: string; token?: string }
@@ -34,10 +35,21 @@ export function PushBridge() {
   useEffect(() => {
     if (!session || registeredFor.current === session.user.id) return
     registeredFor.current = session.user.id
-    registerPushTokenForSession(session).catch((error) => {
-      registeredFor.current = null // allow a retry on the next mount
-      captureError(error, { scope: 'push-register' })
-    })
+    // Don't request notification permission until the user is past onboarding — a brand-new
+    // user is still in that flow, which requests it in-context on completion (avoids a
+    // cold OS prompt mid-signup).
+    isOnboardingComplete()
+      .then((done) => {
+        if (!done) {
+          registeredFor.current = null // re-attempt next launch, once onboarded
+          return
+        }
+        return registerPushTokenForSession(session)
+      })
+      .catch((error) => {
+        registeredFor.current = null
+        captureError(error, { scope: 'push-register' })
+      })
   }, [session])
 
   // Handle taps: cold start (app launched from a notification) + while running.

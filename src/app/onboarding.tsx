@@ -3,8 +3,10 @@ import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import { useAuth } from '@/context/auth'
 import { tapHaptic } from '@/lib/haptics'
 import { markOnboardingComplete } from '@/lib/onboarding'
+import { registerPushTokenForSession } from '@/lib/push-notifications'
 import { colors, radius } from '@/lib/theme'
 
 const PANELS = [
@@ -27,6 +29,7 @@ const PANELS = [
 
 export default function OnboardingScreen() {
   const router = useRouter()
+  const { session } = useAuth()
   const [step, setStep] = useState(0)
   const isLast = step === PANELS.length - 1
   const panel = PANELS[step]
@@ -34,6 +37,9 @@ export default function OnboardingScreen() {
   async function finish() {
     tapHaptic()
     await markOnboardingComplete()
+    // Request notifications now (in-context, right after the value was explained) rather
+    // than cold-prompting during signup. Best-effort; never blocks entry.
+    if (session) registerPushTokenForSession(session).catch(() => {})
     router.replace('/chat')
   }
 
