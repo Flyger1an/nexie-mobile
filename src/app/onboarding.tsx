@@ -62,7 +62,7 @@ export default function OnboardingScreen() {
 
       <View style={styles.body}>
         <Text style={styles.glyph}>{panel.glyph}</Text>
-        <Text style={styles.title}>{panel.title}</Text>
+        <Text accessibilityRole="header" style={styles.title}>{panel.title}</Text>
         <Text style={styles.copy}>{panel.body}</Text>
       </View>
 

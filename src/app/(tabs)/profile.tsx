@@ -135,7 +135,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Profile</Text>
+        <Text accessibilityRole="header" style={styles.title}>Profile</Text>
         <Text style={styles.subtitle}>Nexxi uses your Nexez account and keeps buyer memory scoped to you.</Text>
 
         <View style={styles.card}>

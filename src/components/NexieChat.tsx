@@ -188,7 +188,7 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
         <View style={styles.header}>
           <View>
             <Text style={styles.kicker}>Nexxi mobile</Text>
-            <Text style={styles.title}>Your personal buyer agent</Text>
+            <Text accessibilityRole="header" style={styles.title}>Your personal buyer agent</Text>
           </View>
           <View style={styles.headerRight}>
             {onNewChat ? (

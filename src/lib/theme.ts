@@ -5,7 +5,7 @@ export const colors = {
   border: 'rgba(255,255,255,0.12)',
   text: '#FFFFFF',
   muted: 'rgba(255,255,255,0.58)',
-  faint: 'rgba(255,255,255,0.36)',
+  faint: 'rgba(255,255,255,0.48)', // WCAG AA: 4.95:1 on bg (0.36 was 3.19:1, failed)
   signal: '#2DD4BF',
   purple: '#8B5CF6',
   danger: '#FB7185',

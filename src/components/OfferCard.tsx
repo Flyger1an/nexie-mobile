@@ -16,7 +16,7 @@ export function OfferCard({ card, onBook, onNegotiate, disabled }: OfferCardProp
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={styles.mark}>
+        <View style={styles.mark} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           <Text style={styles.markText}>N</Text>
         </View>
         <View style={styles.titleWrap}>

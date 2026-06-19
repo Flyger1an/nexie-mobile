@@ -24,7 +24,7 @@ export function ActionResultCard({ card }: { card: Extract<NexieCard, { type: 'a
       <Text style={styles.title}>{card.title}</Text>
       <Text style={styles.description}>{card.description}</Text>
       {card.url ? (
-        <Pressable style={styles.button} onPress={open}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open secure link" style={styles.button} onPress={open}>
           <Text style={styles.buttonText}>Open secure link</Text>
         </Pressable>
       ) : null}

@@ -104,7 +104,7 @@ export function ThreadHistory({ visible, onClose, onSelect, onNewChat }: ThreadH
     <Modal visible={visible} animationType="slide" onRequestClose={close} transparent={false}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.title}>Conversations</Text>
+          <Text accessibilityRole="header" style={styles.title}>Conversations</Text>
           <Pressable onPress={close} hitSlop={10} accessibilityLabel="Close">
             <Text style={styles.close}>Done</Text>
           </Pressable>
@@ -156,7 +156,12 @@ export function ThreadHistory({ visible, onClose, onSelect, onNewChat }: ThreadH
                 </View>
               ) : (
                 <View style={styles.row}>
-                  <Pressable style={styles.rowMain} onPress={() => onSelect(item.id)}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Resume conversation: ${item.title}`}
+                    style={styles.rowMain}
+                    onPress={() => onSelect(item.id)}
+                  >
                     <Text style={styles.rowTitle} numberOfLines={1}>
                       {item.title}
                     </Text>

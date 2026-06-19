@@ -71,7 +71,7 @@ export default function OrdersScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Orders</Text>
+        <Text accessibilityRole="header" style={styles.title}>Orders</Text>
         <Text style={styles.subtitle}>Everything Nexxi booked or negotiated for you.</Text>
       </View>
 
@@ -82,7 +82,7 @@ export default function OrdersScreen() {
       ) : error ? (
         <View style={styles.center}>
           <Text style={styles.errorText}>{error}</Text>
-          <Pressable style={styles.retry} onPress={onRetry}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Try again" style={styles.retry} onPress={onRetry}>
             <Text style={styles.retryText}>Try again</Text>
           </Pressable>
         </View>

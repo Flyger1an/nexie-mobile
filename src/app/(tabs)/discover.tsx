@@ -103,7 +103,7 @@ export default function DiscoverScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.kicker}>Discover</Text>
-        <Text style={styles.title}>Agent-ready businesses</Text>
+        <Text accessibilityRole="header" style={styles.title}>Agent-ready businesses</Text>
         <Text style={styles.subtitle}>Browse the Nexez directory, then ask Nexxi to compare, negotiate, or book.</Text>
       </View>
 
@@ -144,7 +144,7 @@ export default function DiscoverScreen() {
       ) : error ? (
         <View style={styles.center}>
           <Text style={styles.errorText}>{error}</Text>
-          <Pressable style={styles.retry} onPress={onRetry}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Try again" style={styles.retry} onPress={onRetry}>
             <Text style={styles.retryText}>Try again</Text>
           </Pressable>
         </View>
