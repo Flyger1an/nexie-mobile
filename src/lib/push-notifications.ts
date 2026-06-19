@@ -33,8 +33,10 @@ function resolveProjectId(): string | undefined {
  * or when permission isn't granted. May throw on network failure — callers should catch.
  */
 export async function registerPushTokenForSession(session: Session): Promise<{ registered: boolean }> {
-  // Simulators/emulators can't obtain a real device push token.
-  if (!Device.isDevice) return { registered: false }
+  // iOS Simulators can't obtain a push token (no APNs). Android emulators CAN (FCM via
+  // Google Play services), so only skip iOS non-devices — real iOS/Android devices and
+  // Android emulators all proceed.
+  if (Platform.OS === 'ios' && !Device.isDevice) return { registered: false }
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
