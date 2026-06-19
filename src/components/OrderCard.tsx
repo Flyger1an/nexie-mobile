@@ -52,7 +52,12 @@ export function OrderCard({ order, onOpen }: { order: NexieOrderSummary; onOpen:
   const date = formatDate(order.createdAt)
 
   return (
-    <Pressable style={({ pressed }) => [styles.card, pressed ? styles.pressed : null]} onPress={() => onOpen(order.token)}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${order.kind === 'negotiation' ? 'Negotiation' : 'Order'}: ${order.offerName || order.slug || 'order'}, ${status.label}. Tap to view.`}
+      style={({ pressed }) => [styles.card, pressed ? styles.pressed : null]}
+      onPress={() => onOpen(order.token)}
+    >
       <View style={styles.topRow}>
         <Text style={styles.kind}>{order.kind === 'negotiation' ? 'Negotiation' : 'Order'}</Text>
         <View style={[styles.statusPill, { borderColor: toneColor[status.tone] }]}>

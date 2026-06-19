@@ -69,10 +69,22 @@ export default function WelcomeScreen() {
 
         <View style={styles.panel}>
           <View style={styles.segment}>
-            <Pressable style={[styles.segmentButton, mode === 'signin' ? styles.segmentActive : null]} onPress={() => setMode('signin')}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: mode === 'signin' }}
+              accessibilityLabel="Sign in"
+              style={[styles.segmentButton, mode === 'signin' ? styles.segmentActive : null]}
+              onPress={() => setMode('signin')}
+            >
               <Text style={[styles.segmentText, mode === 'signin' ? styles.segmentTextActive : null]}>Sign in</Text>
             </Pressable>
-            <Pressable style={[styles.segmentButton, mode === 'signup' ? styles.segmentActive : null]} onPress={() => setMode('signup')}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: mode === 'signup' }}
+              accessibilityLabel="Create account"
+              style={[styles.segmentButton, mode === 'signup' ? styles.segmentActive : null]}
+              onPress={() => setMode('signup')}
+            >
               <Text style={[styles.segmentText, mode === 'signup' ? styles.segmentTextActive : null]}>Create account</Text>
             </Pressable>
           </View>
@@ -83,6 +95,7 @@ export default function WelcomeScreen() {
             textContentType="emailAddress"
             placeholder="Email"
             placeholderTextColor={colors.faint}
+            accessibilityLabel="Email"
             value={email}
             onChangeText={setEmail}
             style={styles.input}
@@ -92,6 +105,7 @@ export default function WelcomeScreen() {
             textContentType={mode === 'signin' ? 'password' : 'newPassword'}
             placeholder="Password"
             placeholderTextColor={colors.faint}
+            accessibilityLabel="Password"
             value={password}
             onChangeText={setPassword}
             style={styles.input}
@@ -99,7 +113,14 @@ export default function WelcomeScreen() {
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          <Pressable disabled={busy || !email || !password} onPress={submit} style={[styles.primary, busy || !email || !password ? styles.disabled : null]}>
+          <Pressable
+            disabled={busy || !email || !password}
+            accessibilityRole="button"
+            accessibilityLabel={mode === 'signin' ? 'Continue' : 'Create Nexxi account'}
+            accessibilityState={{ disabled: busy || !email || !password, busy }}
+            onPress={submit}
+            style={[styles.primary, busy || !email || !password ? styles.disabled : null]}
+          >
             {busy ? <ActivityIndicator color="#001313" /> : <Text style={styles.primaryText}>{mode === 'signin' ? 'Continue' : 'Create Nexxi account'}</Text>}
           </Pressable>
           <Text style={styles.note}>Uses the same secure Supabase account as Nexez.</Text>

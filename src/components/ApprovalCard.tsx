@@ -25,6 +25,9 @@ export function ApprovalCard({ card, disabled, onDecision }: ApprovalCardProps) 
       <View style={styles.actions}>
         <Pressable
           disabled={locked}
+          accessibilityRole="button"
+          accessibilityLabel={`Decline: ${card.title}`}
+          accessibilityState={{ disabled: locked }}
           style={[styles.decline, locked ? styles.disabled : null]}
           onPress={() => {
             decisionHaptic()
@@ -35,6 +38,9 @@ export function ApprovalCard({ card, disabled, onDecision }: ApprovalCardProps) 
         </Pressable>
         <Pressable
           disabled={locked}
+          accessibilityRole="button"
+          accessibilityLabel={`Approve: ${card.title}`}
+          accessibilityState={{ disabled: locked }}
           style={[styles.approve, locked ? styles.disabled : null]}
           onPress={() => {
             decisionHaptic()

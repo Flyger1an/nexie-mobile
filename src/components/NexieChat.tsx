@@ -279,7 +279,13 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
         {messages.length === 1 ? (
           <View style={styles.starters}>
             {starters.map((starter) => (
-              <Pressable key={starter} style={styles.starter} onPress={() => submit(starter)}>
+              <Pressable
+                key={starter}
+                accessibilityRole="button"
+                accessibilityLabel={starter}
+                style={styles.starter}
+                onPress={() => submit(starter)}
+              >
                 <Text style={styles.starterText}>{starter}</Text>
               </Pressable>
             ))}
@@ -296,10 +302,14 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
             multiline
             placeholder="Ask Nexxi to find, negotiate, or book..."
             placeholderTextColor={colors.faint}
+            accessibilityLabel="Message Nexxi"
             style={styles.input}
           />
           <Pressable
             disabled={busy || !input.trim()}
+            accessibilityRole="button"
+            accessibilityLabel="Send message"
+            accessibilityState={{ disabled: busy || !input.trim() }}
             style={[styles.send, busy || !input.trim() ? styles.sendDisabled : null]}
             onPress={() => submit()}
           >

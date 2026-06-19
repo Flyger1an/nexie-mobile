@@ -29,13 +29,20 @@ export function OfferCard({ card, onBook, onNegotiate, disabled }: OfferCardProp
       {card.description ? <Text style={styles.description}>{card.description}</Text> : null}
 
       <View style={styles.actions}>
-        <Pressable style={styles.secondaryButton} onPress={() => WebBrowser.openBrowserAsync(card.url)}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`View ${card.title}`}
+          style={styles.secondaryButton}
+          onPress={() => WebBrowser.openBrowserAsync(card.url)}
+        >
           <Text style={styles.secondaryText}>View</Text>
         </Pressable>
         {card.offerKey ? (
           <>
             <Pressable
               disabled={disabled}
+              accessibilityRole="button"
+              accessibilityLabel={`Negotiate ${card.offerName || card.title}`}
               style={[styles.secondaryButton, disabled ? styles.disabled : null]}
               onPress={() => onNegotiate(`Negotiate ${card.offerName || card.title} on /${card.slug} using offer ${card.offerKey}.`)}
             >
@@ -43,6 +50,8 @@ export function OfferCard({ card, onBook, onNegotiate, disabled }: OfferCardProp
             </Pressable>
             <Pressable
               disabled={disabled}
+              accessibilityRole="button"
+              accessibilityLabel={`Book ${card.offerName || card.title}`}
               style={[styles.primaryButton, disabled ? styles.disabled : null]}
               onPress={() => onBook(`Book ${card.offerName || card.title} on /${card.slug} using offer ${card.offerKey}.`)}
             >

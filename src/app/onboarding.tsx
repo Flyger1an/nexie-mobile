@@ -75,6 +75,8 @@ export default function OnboardingScreen() {
         <View style={styles.actions}>
           {step > 0 ? (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Back"
               style={styles.back}
               onPress={() => {
                 tapHaptic()
@@ -86,7 +88,12 @@ export default function OnboardingScreen() {
           ) : (
             <View style={styles.backSpacer} />
           )}
-          <Pressable style={styles.primary} onPress={next}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={isLast ? 'Get started' : 'Next'}
+            style={styles.primary}
+            onPress={next}
+          >
             <Text style={styles.primaryText}>{isLast ? 'Get started' : 'Next'}</Text>
           </Pressable>
         </View>

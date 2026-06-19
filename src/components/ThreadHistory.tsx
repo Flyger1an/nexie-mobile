@@ -111,6 +111,8 @@ export function ThreadHistory({ visible, onClose, onSelect, onNewChat }: ThreadH
         </View>
 
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="New chat"
           style={styles.newChat}
           onPress={() => {
             tapHaptic()
