@@ -103,3 +103,10 @@ export type NexieCatalogPage = {
   certified: boolean
   offerCount: number
 }
+
+// A past conversation in the buyer's thread history (newest first).
+export type NexieThreadSummary = {
+  id: string
+  title: string
+  updatedAt: string
+}

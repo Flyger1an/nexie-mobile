@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useAuth } from '@/context/auth'
 import { fetchPreferences } from '@/lib/preferences-api'
+import { fetchThreadMessages } from '@/lib/threads-api'
 import { sendNexieTurn } from '@/lib/nexie-api'
 import { errorHaptic, successHaptic, tapHaptic } from '@/lib/haptics'
 import { speak, stopSpeaking } from '@/lib/speech'
@@ -31,23 +32,32 @@ const starters = [
   'Find the best AI-ready service for a product launch',
 ]
 
-export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
+const WELCOME: NexieMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content: 'I am Nexxi. Tell me what you want to buy, book, or negotiate, and I will search the agent-ready web for you.',
+}
+
+type NexieChatProps = {
+  initialPrompt?: string
+  /** When set, the chat resumes this past conversation (loads its messages on mount). */
+  resumeThreadId?: string
+  onOpenHistory?: () => void
+  onNewChat?: () => void
+}
+
+export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewChat }: NexieChatProps = {}) {
   const { session } = useAuth()
-  const [threadId, setThreadId] = useState<string | undefined>()
+  const [threadId, setThreadId] = useState<string | undefined>(resumeThreadId)
   const [input, setInput] = useState('')
   const [appliedSeed, setAppliedSeed] = useState<string | undefined>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [messages, setMessages] = useState<NexieMessage[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: 'I am Nexxi. Tell me what you want to buy, book, or negotiate, and I will search the agent-ready web for you.',
-    },
-  ])
+  const [messages, setMessages] = useState<NexieMessage[]>(resumeThreadId ? [] : [WELCOME])
   const [speakEnabled, setSpeakEnabled] = useState(false)
   const listRef = useRef<FlatList<NexieMessage>>(null)
   const voiceInitRef = useRef(false)
+  const threadLoadRef = useRef(false)
 
   // Honor the buyer's "speak replies by default" preference, once on mount (best-effort:
   // setState lives in the promise callback, never the synchronous effect body).
@@ -60,6 +70,22 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
       })
       .catch(() => {})
   }, [session])
+
+  // Resume a past conversation: load its messages once on mount when one is selected.
+  // (The chat screen remounts NexieChat per thread via `key`, so this runs fresh each time.)
+  useEffect(() => {
+    if (!session || !resumeThreadId || threadLoadRef.current) return
+    threadLoadRef.current = true
+    fetchThreadMessages(session, resumeThreadId)
+      .then((detail) => {
+        setMessages(detail.messages.length ? detail.messages : [WELCOME])
+        setThreadId(detail.threadId)
+      })
+      .catch(() => {
+        setMessages([WELCOME])
+        setError('Could not load that conversation — starting fresh.')
+      })
+  }, [session, resumeThreadId])
 
   // Adjust state when the seed prop changes (Discover -> "Ask Nexxi"): prefill the
   // composer once per distinct seed. Render-phase setState is React's recommended
@@ -165,6 +191,32 @@ export function NexieChat({ initialPrompt }: { initialPrompt?: string } = {}) {
             <Text style={styles.title}>Your personal buyer agent</Text>
           </View>
           <View style={styles.headerRight}>
+            {onNewChat ? (
+              <Pressable
+                onPress={() => {
+                  tapHaptic()
+                  onNewChat()
+                }}
+                style={styles.iconBtn}
+                accessibilityRole="button"
+                accessibilityLabel="New chat"
+              >
+                <Text style={styles.iconBtnText}>＋</Text>
+              </Pressable>
+            ) : null}
+            {onOpenHistory ? (
+              <Pressable
+                onPress={() => {
+                  tapHaptic()
+                  onOpenHistory()
+                }}
+                style={styles.iconBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Conversation history"
+              >
+                <Text style={styles.iconBtnText}>🕘</Text>
+              </Pressable>
+            ) : null}
             <Pressable
               onPress={() => {
                 tapHaptic()
@@ -335,6 +387,20 @@ const styles = StyleSheet.create({
   },
   speakToggleText: {
     fontSize: 16,
+  },
+  iconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+  },
+  iconBtnText: {
+    fontSize: 16,
+    color: colors.text,
   },
   livePill: {
     flexDirection: 'row',
