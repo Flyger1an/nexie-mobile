@@ -201,12 +201,12 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 | Task | Area | Effort |
 |------|------|--------|
 | ✅ **Privacy Policy + Terms of Service** — pages live at nexez.ai/privacy + /terms; Privacy updated to cover the Nexxi app (voice/mic, push, opt-in crash, LLM + search processors, in-app deletion, Children) (nexez `808466a`); linked in-app from Profile → Legal (mobile `120e799`). ToS still web-generic ("the Service") — minor mobile-clause polish deferred. | legal + web | M |
-| App Store **Privacy Nutrition Label** / Play **Data Safety** form (declare: account, mic/voice, usage analytics, crash data) | store config | S |
+| ✅ **Privacy Nutrition Label / Play Data Safety** declarations **drafted** — copy-ready answers for both consoles in [docs/DATA_SAFETY.md](docs/DATA_SAFETY.md) (data inventory, per-store mappings, tricky-point rationale incl. mic-but-no-audio + Stripe-hosted payments, pre-submission checklist). Owner enters them in the consoles. | store config | S |
 | App Tracking Transparency prompt **only if** any tracking SDK is added; otherwise declare no tracking | `expo-tracking-transparency` (conditional) | S |
 | Permission strings audited (mic, speech, notifications) — already partly set in `app.json` | `app.json` | S |
 | Agent safety: spend/clarity guardrails, "Nexxi can be wrong" disclosure, no medical/financial/legal advice scope note | prompt + UI | S |
 | Content & dispute policy for buyer-seller transactions (link to existing refund/report flows) | legal | S |
-| GDPR/CCPA data export + deletion path (deletion covered in P4; add export) | `nexez` | M |
+| ✅ **GDPR/CCPA data export** — `/api/account/export` rebuilt with bearer+cookie auth + comprehensive coverage (agent/buyer data + seller data, secret-safe), tests; in-app **Profile → Export my data** → OS share sheet (nexez `82a24b7`, mobile `36b0b49`). Deletion shipped in P4. | `nexez` | M |
 | Age rating questionnaire; export-compliance (`ITSAppUsesNonExemptEncryption` already set) | store config | S |
 
 **Exit Gate:** privacy policy live; data-safety forms drafted; account deletion + data export work; permission prompts have correct copy and fire at the right time.
