@@ -415,6 +415,18 @@ export default function ProfileScreen() {
           <Text style={styles.signOutText}>Sign out</Text>
         </Pressable>
 
+        {/* Safety & buyer protection (App Store agent-safety + dispute disclosure) */}
+        <View style={styles.safetyNote}>
+          <Text accessibilityRole="header" style={styles.safetyTitle}>Safety & buyer protection</Text>
+          <Text style={styles.safetyBody}>
+            Nexxi is an AI buyer assistant — it can make mistakes, so review important details before you
+            approve. It doesn&apos;t provide medical, financial, or legal advice.
+          </Text>
+          <Text style={styles.safetyBody}>
+            You can request a refund or report a problem on any order from the Orders tab.
+          </Text>
+        </View>
+
         {/* Legal */}
         <View style={styles.legalRow}>
           <Pressable
@@ -760,6 +772,21 @@ const styles = StyleSheet.create({
   legalDot: {
     color: colors.faint,
     fontSize: 13,
+  },
+  safetyNote: {
+    marginTop: 8,
+    marginBottom: 4,
+    gap: 8,
+  },
+  safetyTitle: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  safetyBody: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17,
   },
   dataExport: {
     marginTop: 8,

@@ -7,7 +7,7 @@ import { useAuth } from '@/context/auth'
 import { tapHaptic } from '@/lib/haptics'
 import { markOnboardingComplete } from '@/lib/onboarding'
 import { registerPushTokenForSession } from '@/lib/push-notifications'
-import { colors, radius } from '@/lib/theme'
+import { colors } from '@/lib/theme'
 
 const PANELS = [
   {
@@ -18,7 +18,7 @@ const PANELS = [
   {
     glyph: '✅',
     title: 'You stay in control',
-    body: 'Nexxi always asks for your approval before it negotiates or opens checkout. Nothing moves without your tap.',
+    body: 'Nexxi can make mistakes, so it always asks for your approval before it negotiates or opens checkout. Nothing moves without your tap.',
   },
   {
     glyph: '🔔',

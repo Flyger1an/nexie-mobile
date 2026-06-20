@@ -342,7 +342,7 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
             <Text style={styles.sendText}>Send</Text>
           </Pressable>
         </View>
-        <Text style={styles.disclaimer}>Nexxi asks before submitting offers or opening checkout.</Text>
+        <Text style={styles.disclaimer}>Nexxi can make mistakes — and always asks before submitting offers or opening checkout.</Text>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
