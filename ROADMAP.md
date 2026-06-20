@@ -200,7 +200,7 @@ The agent always represents the **buyer's** intent. Money-moving and offer-submi
 
 | Task | Area | Effort |
 |------|------|--------|
-| **Privacy Policy** + **Terms of Service** (hosted URLs, linked in-app & store listings) | legal + web | M |
+| ✅ **Privacy Policy + Terms of Service** — pages live at nexez.ai/privacy + /terms; Privacy updated to cover the Nxxi app (voice/mic, push, opt-in crash, LLM + search processors, in-app deletion, Children) (nexez `808466a`); linked in-app from Profile → Legal (mobile `120e799`). ToS still web-generic ("the Service") — minor mobile-clause polish deferred. | legal + web | M |
 | App Store **Privacy Nutrition Label** / Play **Data Safety** form (declare: account, mic/voice, usage analytics, crash data) | store config | S |
 | App Tracking Transparency prompt **only if** any tracking SDK is added; otherwise declare no tracking | `expo-tracking-transparency` (conditional) | S |
 | Permission strings audited (mic, speech, notifications) — already partly set in `app.json` | `app.json` | S |
