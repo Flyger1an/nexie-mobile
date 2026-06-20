@@ -172,7 +172,7 @@ export default function ProfileScreen() {
     setExportError('')
     try {
       const json = await exportAccount(session)
-      await Share.share({ message: json, title: 'Your Nxxi data export' })
+      await Share.share({ message: json, title: 'Your Nexxi data export' })
       successHaptic()
     } catch (err) {
       setExportError(err instanceof Error ? err.message : 'Could not export your data. Try again.')
@@ -449,7 +449,7 @@ export default function ProfileScreen() {
               <Text style={styles.exportBtnText}>Export my data</Text>
             )}
           </Pressable>
-          <Text style={styles.exportHint}>Download everything Nxxi stores about you as a JSON file.</Text>
+          <Text style={styles.exportHint}>Download everything Nexxi stores about you as a JSON file.</Text>
           {exportError ? <Text style={styles.exportError}>{exportError}</Text> : null}
         </View>
 
