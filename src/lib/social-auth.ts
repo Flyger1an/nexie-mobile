@@ -1,14 +1,15 @@
-import * as AppleAuthentication from 'expo-apple-authentication'
-import * as Crypto from 'expo-crypto'
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin'
 import { Platform } from 'react-native'
+import type * as AppleAuthentication from 'expo-apple-authentication'
 
 import { env } from './env'
 import { supabase } from './supabase'
 
 // Native social sign-in → Supabase session via signInWithIdToken. Both providers need a native
 // rebuild + their Supabase provider configured; the buttons are gated (below) so they stay hidden
-// until that's done. Each function resolves `false` on user cancel and throws on real errors.
+// until that's done. The native modules (expo-crypto / expo-apple-authentication / google-signin)
+// are imported LAZILY inside the handlers — an EAGER top-level import crashes startup with
+// "Cannot find native module" on any build that predates them, so importing this file (for the
+// gating flags) must stay inert. Each function resolves `false` on user cancel, throws on real errors.
 
 /** Apple is iOS-only and gated on the enable flag (set after configuring + rebuilding). */
 export const isAppleSignInSupported = Platform.OS === 'ios' && env.appleSignInEnabled
@@ -16,6 +17,9 @@ export const isAppleSignInSupported = Platform.OS === 'ios' && env.appleSignInEn
 export const isGoogleSignInConfigured = Boolean(env.googleWebClientId)
 
 export async function signInWithApple(): Promise<boolean> {
+  const Crypto = await import('expo-crypto')
+  const Apple = await import('expo-apple-authentication')
+
   // Apple binds a nonce into the identity token; Supabase re-hashes the RAW nonce and compares,
   // so Apple gets the SHA-256 hash and Supabase gets the raw value.
   const rawNonce = Crypto.randomUUID()
@@ -23,10 +27,10 @@ export async function signInWithApple(): Promise<boolean> {
 
   let credential: AppleAuthentication.AppleAuthenticationCredential
   try {
-    credential = await AppleAuthentication.signInAsync({
+    credential = await Apple.signInAsync({
       requestedScopes: [
-        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        Apple.AppleAuthenticationScope.FULL_NAME,
+        Apple.AppleAuthenticationScope.EMAIL,
       ],
       nonce: hashedNonce,
     })
@@ -46,8 +50,9 @@ export async function signInWithApple(): Promise<boolean> {
 }
 
 let googleConfigured = false
-function ensureGoogleConfigured() {
+async function ensureGoogleConfigured() {
   if (googleConfigured) return
+  const { GoogleSignin } = await import('@react-native-google-signin/google-signin')
   GoogleSignin.configure({
     webClientId: env.googleWebClientId,
     iosClientId: env.googleIosClientId || undefined,
@@ -56,7 +61,8 @@ function ensureGoogleConfigured() {
 }
 
 export async function signInWithGoogle(): Promise<boolean> {
-  ensureGoogleConfigured()
+  const { GoogleSignin, statusCodes } = await import('@react-native-google-signin/google-signin')
+  await ensureGoogleConfigured()
   if (Platform.OS === 'android') await GoogleSignin.hasPlayServices()
 
   let response: Awaited<ReturnType<typeof GoogleSignin.signIn>>
