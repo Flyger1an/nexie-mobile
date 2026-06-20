@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router'
+import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useEffect, useState } from 'react'
 import {
   ActivityIndicator,
@@ -393,6 +394,25 @@ export default function ProfileScreen() {
           <Text style={styles.signOutText}>Sign out</Text>
         </Pressable>
 
+        {/* Legal */}
+        <View style={styles.legalRow}>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="Privacy Policy"
+            onPress={() => WebBrowser.openBrowserAsync('https://nexez.ai/privacy')}
+          >
+            <Text style={styles.legalLink}>Privacy Policy</Text>
+          </Pressable>
+          <Text style={styles.legalDot}>·</Text>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="Terms of Service"
+            onPress={() => WebBrowser.openBrowserAsync('https://nexez.ai/terms')}
+          >
+            <Text style={styles.legalLink}>Terms of Service</Text>
+          </Pressable>
+        </View>
+
         {/* Danger zone — in-app account deletion (App Store requirement) */}
         <View style={styles.dangerZone}>
           <Text accessibilityRole="header" style={styles.dangerTitle}>Delete account</Text>
@@ -684,5 +704,21 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 14,
     fontWeight: '900',
+  },
+  legalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  legalLink: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  legalDot: {
+    color: colors.faint,
+    fontSize: 13,
   },
 })
