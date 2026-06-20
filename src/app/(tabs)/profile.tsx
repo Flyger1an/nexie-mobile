@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Switch,
   Text,
@@ -15,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useAuth } from '@/context/auth'
 import { errorHaptic, tapHaptic, successHaptic } from '@/lib/haptics'
-import { deleteAccount } from '@/lib/account-api'
+import { deleteAccount, exportAccount } from '@/lib/account-api'
 import { fetchPreferences, updatePreferences } from '@/lib/preferences-api'
 import { colors, radius } from '@/lib/theme'
 import type { NexieAvailableSource, NexiePreferences, NexieTiming } from '@/lib/types'
@@ -160,6 +161,26 @@ export default function ProfileScreen() {
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const canDelete = confirmText.trim().toUpperCase() === 'DELETE'
+
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState('')
+
+  async function handleExport() {
+    if (!session || exporting) return
+    tapHaptic()
+    setExporting(true)
+    setExportError('')
+    try {
+      const json = await exportAccount(session)
+      await Share.share({ message: json, title: 'Your Nxxi data export' })
+      successHaptic()
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : 'Could not export your data. Try again.')
+      errorHaptic()
+    } finally {
+      setExporting(false)
+    }
+  }
 
   async function handleDeleteAccount() {
     if (!session || deleting || !canDelete) return
@@ -411,6 +432,25 @@ export default function ProfileScreen() {
           >
             <Text style={styles.legalLink}>Terms of Service</Text>
           </Pressable>
+        </View>
+
+        {/* Data export (GDPR/CCPA) */}
+        <View style={styles.dataExport}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Export my data"
+            style={[styles.exportBtn, exporting ? styles.disabled : null]}
+            onPress={handleExport}
+            disabled={exporting}
+          >
+            {exporting ? (
+              <ActivityIndicator color={colors.signal} />
+            ) : (
+              <Text style={styles.exportBtnText}>Export my data</Text>
+            )}
+          </Pressable>
+          <Text style={styles.exportHint}>Download everything Nxxi stores about you as a JSON file.</Text>
+          {exportError ? <Text style={styles.exportError}>{exportError}</Text> : null}
         </View>
 
         {/* Danger zone — in-app account deletion (App Store requirement) */}
@@ -719,6 +759,34 @@ const styles = StyleSheet.create({
   },
   legalDot: {
     color: colors.faint,
+    fontSize: 13,
+  },
+  dataExport: {
+    marginTop: 8,
+  },
+  exportBtn: {
+    minHeight: 48,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  exportBtnText: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  exportHint: {
+    marginTop: 8,
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  exportError: {
+    marginTop: 8,
+    color: colors.danger,
     fontSize: 13,
   },
 })
