@@ -2,7 +2,7 @@ import { Redirect, Tabs } from 'expo-router'
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/context/auth'
-import { colors } from '@/lib/theme'
+import { colors, font } from '@/lib/theme'
 
 // Emoji glyphs keep the tab bar dependency-free (no native icon font / rebuild).
 // Focus is conveyed by opacity since emoji ignore tabBarActiveTintColor.
@@ -27,7 +27,7 @@ export default function TabsLayout() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={colors.signal} />
+        <ActivityIndicator color={colors.accent} />
       </View>
     )
   }
@@ -37,8 +37,8 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.signal,
-        tabBarInactiveTintColor: colors.faint,
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.text3,
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabLabel,
         tabBarItemStyle: styles.tabItem,
@@ -61,13 +61,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   tabBar: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.tabbar,
     borderTopColor: colors.border,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   tabLabel: {
-    fontSize: 11,
-    fontWeight: '800',
+    fontFamily: font.sans800,
+    fontSize: 10,
   },
   tabItem: {
     paddingVertical: 4,

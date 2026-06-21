@@ -18,7 +18,7 @@ import { fetchThreadMessages } from '@/lib/threads-api'
 import { sendNexieTurn, streamNexieTurn } from '@/lib/nexie-api'
 import { errorHaptic, successHaptic, tapHaptic } from '@/lib/haptics'
 import { createIncrementalSpeaker, speak, stopSpeaking } from '@/lib/speech'
-import { colors, radius } from '@/lib/theme'
+import { colors, font, radius } from '@/lib/theme'
 import type { NexieCard, NexieMessage, NexieMode } from '@/lib/types'
 
 import { ActionResultCard } from './ActionResultCard'
@@ -203,9 +203,9 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
         keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
       >
         <View style={styles.header}>
-          <View>
-            <Text style={styles.kicker}>Nexxi mobile</Text>
-            <Text accessibilityRole="header" style={styles.title}>Your personal buyer agent</Text>
+          <View style={styles.wordmarkRow}>
+            <Text accessibilityRole="header" style={styles.wordmark}>nexxi</Text>
+            <View style={styles.wordmarkDot} />
           </View>
           <View style={styles.headerRight}>
             {onNewChat ? (
@@ -261,17 +261,23 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
             <View style={[styles.messageWrap, item.role === 'user' ? styles.userWrap : styles.assistantWrap]}>
-              <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.assistantBubble]}>
-                {item.role === 'assistant' ? <Text style={styles.assistantLabel}>Nexxi</Text> : null}
-                {item.role === 'assistant' && !item.content ? (
-                  <View style={styles.thinking}>
-                    <ActivityIndicator color={colors.signal} />
-                    <Text style={styles.thinkingText}>Nexxi is working...</Text>
-                  </View>
-                ) : (
-                  <Text style={[styles.messageText, item.role === 'user' ? styles.userText : styles.assistantText]}>{item.content}</Text>
-                )}
-              </View>
+              {item.role === 'user' ? (
+                <View style={styles.userBubble}>
+                  <Text style={styles.userText}>{item.content}</Text>
+                </View>
+              ) : (
+                <View style={styles.assistantReply}>
+                  <Text style={styles.assistantLabel}>NEXXI</Text>
+                  {!item.content ? (
+                    <View style={styles.thinking}>
+                      <ActivityIndicator color={colors.accent} />
+                      <Text style={styles.thinkingText}>Nexxi is working…</Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.assistantText}>{item.content}</Text>
+                  )}
+                </View>
+              )}
               {item.cards?.length ? (
                 <View style={styles.cards}>
                   {item.cards.map((card) => (
@@ -293,8 +299,8 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
                   the indicator inside their own assistant bubble the whole time. */}
               {busy && !streamingTurn ? (
                 <View style={styles.thinking}>
-                  <ActivityIndicator color={colors.signal} />
-                  <Text style={styles.thinkingText}>Nexxi is working...</Text>
+                  <ActivityIndicator color={colors.accent} />
+                  <Text style={styles.thinkingText}>Nexxi is working…</Text>
                 </View>
               ) : null}
             </View>
@@ -304,14 +310,16 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
 
         {messages.length === 1 ? (
           <View style={styles.starters}>
-            {starters.map((starter) => (
+            <Text style={styles.startersLabel}>Try asking</Text>
+            {starters.map((starter, index) => (
               <Pressable
                 key={starter}
                 accessibilityRole="button"
                 accessibilityLabel={starter}
-                style={styles.starter}
+                style={[styles.starter, index > 0 ? styles.starterDivider : null]}
                 onPress={() => submit(starter)}
               >
+                <Text style={styles.starterArrow}>→</Text>
                 <Text style={styles.starterText}>{starter}</Text>
               </Pressable>
             ))}
@@ -326,8 +334,8 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
             value={input}
             onChangeText={setInput}
             multiline
-            placeholder="Ask Nexxi to find, negotiate, or book..."
-            placeholderTextColor={colors.faint}
+            placeholder="Ask Nexxi to find, negotiate, or book…"
+            placeholderTextColor={colors.text3}
             accessibilityLabel="Message Nexxi"
             style={styles.input}
           />
@@ -388,18 +396,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  kicker: {
-    color: colors.signal,
-    fontSize: 12,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-    letterSpacing: 1.8,
+  wordmarkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  title: {
+  wordmark: {
     color: colors.text,
+    fontFamily: font.serif,
     fontSize: 22,
-    fontWeight: '900',
-    letterSpacing: -0.9,
+    lineHeight: 26,
+  },
+  wordmarkDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 99,
+    backgroundColor: colors.accent,
     marginTop: 4,
   },
   headerRight: {
@@ -410,16 +422,16 @@ const styles = StyleSheet.create({
   speakToggle: {
     width: 38,
     height: 38,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: colors.panel,
   },
   speakToggleOn: {
-    borderColor: 'rgba(45,212,191,0.5)',
-    backgroundColor: 'rgba(45,212,191,0.14)',
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
   },
   speakToggleText: {
     fontSize: 16,
@@ -427,12 +439,12 @@ const styles = StyleSheet.create({
   iconBtn: {
     width: 38,
     height: 38,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: colors.panel,
   },
   iconBtnText: {
     fontSize: 16,
@@ -442,7 +454,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 10,
@@ -452,20 +464,20 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 99,
-    backgroundColor: colors.signal,
+    backgroundColor: colors.accent,
   },
   liveText: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans600,
     fontSize: 12,
-    fontWeight: '800',
   },
   listContent: {
-    gap: 16,
+    gap: 18,
     paddingTop: 6,
     paddingBottom: 18,
   },
   messageWrap: {
-    gap: 10,
+    gap: 12,
   },
   userWrap: {
     alignItems: 'flex-end',
@@ -473,38 +485,39 @@ const styles = StyleSheet.create({
   assistantWrap: {
     alignItems: 'flex-start',
   },
-  bubble: {
-    maxWidth: '86%',
-    borderRadius: radius.lg,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-  },
   userBubble: {
+    maxWidth: '86%',
     backgroundColor: colors.text,
-    borderBottomRightRadius: 8,
-  },
-  assistantBubble: {
-    backgroundColor: 'rgba(255,255,255,0.055)',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderBottomLeftRadius: 8,
-  },
-  assistantLabel: {
-    color: colors.signal,
-    fontSize: 12,
-    fontWeight: '900',
-    marginBottom: 5,
-  },
-  messageText: {
-    fontSize: 14,
-    lineHeight: 21,
+    borderRadius: 15,
+    borderBottomRightRadius: 5,
+    paddingHorizontal: 15,
+    paddingVertical: 11,
   },
   userText: {
-    color: '#050507',
-    fontWeight: '700',
+    color: colors.onAccent,
+    fontFamily: font.sans,
+    fontSize: 14.5,
+    lineHeight: 21,
+  },
+  assistantReply: {
+    maxWidth: '92%',
+    borderLeftWidth: 2,
+    borderLeftColor: colors.accent,
+    paddingLeft: 12,
+  },
+  assistantLabel: {
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 1.3,
+    textTransform: 'uppercase',
+    marginBottom: 6,
   },
   assistantText: {
     color: colors.text,
+    fontFamily: font.serif,
+    fontSize: 16.5,
+    lineHeight: 23,
   },
   cards: {
     width: '100%',
@@ -518,38 +531,53 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    paddingVertical: 2,
   },
   thinkingText: {
-    color: colors.muted,
-    fontSize: 13,
-    fontWeight: '700',
+    color: colors.text2,
+    fontFamily: font.serif,
+    fontSize: 15.5,
   },
   starters: {
-    gap: 8,
     marginBottom: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderSoft,
+    paddingTop: 12,
+  },
+  startersLabel: {
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 1.3,
+    textTransform: 'uppercase',
+    marginBottom: 8,
   },
   starter: {
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 13,
+  },
+  starterDivider: {
+    borderTopWidth: 1,
+    borderTopColor: colors.borderSoft,
+  },
+  starterArrow: {
+    color: colors.accent,
+    fontFamily: font.serif,
+    fontSize: 18,
+    lineHeight: 20,
   },
   starterText: {
-    color: colors.muted,
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '700',
+    flex: 1,
+    color: colors.text2,
+    fontFamily: font.sans,
+    fontSize: 14,
+    lineHeight: 19,
   },
   error: {
     color: colors.danger,
+    fontFamily: font.sans,
     marginBottom: 8,
     fontSize: 12,
   },
@@ -559,8 +587,8 @@ const styles = StyleSheet.create({
     gap: 9,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.lg,
-    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderRadius: 16,
+    backgroundColor: colors.panel,
     padding: 8,
   },
   input: {
@@ -568,29 +596,31 @@ const styles = StyleSheet.create({
     minHeight: 48,
     maxHeight: 116,
     color: colors.text,
-    fontSize: 14,
+    fontFamily: font.sans,
+    fontSize: 14.5,
     lineHeight: 20,
     paddingHorizontal: 4,
     paddingVertical: 13,
   },
   send: {
     height: 48,
-    borderRadius: 18,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: colors.signal,
+    paddingHorizontal: 18,
+    backgroundColor: colors.text,
   },
   sendDisabled: {
-    opacity: 0.45,
+    opacity: 0.4,
   },
   sendText: {
-    color: '#001313',
-    fontWeight: '900',
-    fontSize: 13,
+    color: colors.onAccent,
+    fontFamily: font.sans700,
+    fontSize: 13.5,
   },
   disclaimer: {
-    color: colors.faint,
+    color: colors.text3,
+    fontFamily: font.sans,
     fontSize: 11,
     lineHeight: 15,
     paddingHorizontal: 8,

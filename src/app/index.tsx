@@ -17,7 +17,7 @@ import * as AppleAuthentication from 'expo-apple-authentication'
 import { useAuth } from '@/context/auth'
 import { isOnboardingComplete } from '@/lib/onboarding'
 import { isAppleSignInSupported, isGoogleSignInConfigured, signInWithApple, signInWithGoogle } from '@/lib/social-auth'
-import { colors, radius } from '@/lib/theme'
+import { colors, font, radius } from '@/lib/theme'
 
 export default function WelcomeScreen() {
   const router = useRouter()
@@ -102,7 +102,7 @@ export default function WelcomeScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator color={colors.signal} />
+        <ActivityIndicator color={colors.accent} />
       </SafeAreaView>
     )
   }
@@ -111,12 +111,12 @@ export default function WelcomeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
         <View style={styles.hero}>
-          <View style={styles.orb} />
-          <Text style={styles.kicker}>Nexxi</Text>
-          <Text style={styles.title}>Shop the agent-ready web with your personal buyer agent.</Text>
-          <Text style={styles.subtitle}>
-            Search Nexez pages, get service recommendations, negotiate terms, and start bookings by voice or text.
-          </Text>
+          <View style={styles.wordmarkRow}>
+            <Text style={styles.wordmark}>nexxi</Text>
+            <View style={styles.wordmarkDot} />
+          </View>
+          <Text style={styles.kicker}>PERSONAL BUYER AGENT</Text>
+          <Text style={styles.title}>Shop the agent-ready web with your own buyer agent.</Text>
         </View>
 
         <View style={styles.panel}>
@@ -128,24 +128,26 @@ export default function WelcomeScreen() {
               </Pressable>
             </View>
           ) : (
-            <View style={styles.segment}>
+            <View style={styles.tabRow}>
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ selected: mode === 'signin' }}
                 accessibilityLabel="Sign in"
-                style={[styles.segmentButton, mode === 'signin' ? styles.segmentActive : null]}
+                style={styles.tab}
                 onPress={() => switchMode('signin')}
               >
-                <Text style={[styles.segmentText, mode === 'signin' ? styles.segmentTextActive : null]}>Sign in</Text>
+                <Text style={[styles.tabText, mode === 'signin' ? styles.tabTextActive : null]}>Sign in</Text>
+                <View style={[styles.tabUnderline, mode === 'signin' ? styles.tabUnderlineActive : null]} />
               </Pressable>
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ selected: mode === 'signup' }}
                 accessibilityLabel="Create account"
-                style={[styles.segmentButton, mode === 'signup' ? styles.segmentActive : null]}
+                style={styles.tab}
                 onPress={() => switchMode('signup')}
               >
-                <Text style={[styles.segmentText, mode === 'signup' ? styles.segmentTextActive : null]}>Create account</Text>
+                <Text style={[styles.tabText, mode === 'signup' ? styles.tabTextActive : null]}>Create account</Text>
+                <View style={[styles.tabUnderline, mode === 'signup' ? styles.tabUnderlineActive : null]} />
               </Pressable>
             </View>
           )}
@@ -155,7 +157,7 @@ export default function WelcomeScreen() {
             keyboardType="email-address"
             textContentType="emailAddress"
             placeholder="Email"
-            placeholderTextColor={colors.faint}
+            placeholderTextColor={colors.text3}
             accessibilityLabel="Email"
             value={email}
             onChangeText={setEmail}
@@ -169,7 +171,7 @@ export default function WelcomeScreen() {
                 autoCapitalize="none"
                 keyboardType="number-pad"
                 placeholder="Reset code (from email)"
-                placeholderTextColor={colors.faint}
+                placeholderTextColor={colors.text3}
                 accessibilityLabel="Reset code"
                 value={code}
                 onChangeText={setCode}
@@ -179,7 +181,7 @@ export default function WelcomeScreen() {
                 secureTextEntry
                 textContentType="newPassword"
                 placeholder="New password"
-                placeholderTextColor={colors.faint}
+                placeholderTextColor={colors.text3}
                 accessibilityLabel="New password"
                 value={password}
                 onChangeText={setPassword}
@@ -191,7 +193,7 @@ export default function WelcomeScreen() {
               secureTextEntry
               textContentType={mode === 'signin' ? 'password' : 'newPassword'}
               placeholder="Password"
-              placeholderTextColor={colors.faint}
+              placeholderTextColor={colors.text3}
               accessibilityLabel="Password"
               value={password}
               onChangeText={setPassword}
@@ -210,7 +212,7 @@ export default function WelcomeScreen() {
             onPress={submit}
             style={[styles.primary, busy || !canSubmit ? styles.disabled : null]}
           >
-            {busy ? <ActivityIndicator color="#001313" /> : <Text style={styles.primaryText}>{primaryLabel}</Text>}
+            {busy ? <ActivityIndicator color={colors.onAccent} /> : <Text style={styles.primaryText}>{primaryLabel}</Text>}
           </Pressable>
 
           {mode === 'signin' ? (
@@ -229,8 +231,8 @@ export default function WelcomeScreen() {
               {isAppleSignInSupported ? (
                 <AppleAuthentication.AppleAuthenticationButton
                   buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-                  cornerRadius={18}
+                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+                  cornerRadius={radius.md}
                   style={styles.appleButton}
                   onPress={() => handleSocial(signInWithApple)}
                 />
@@ -249,7 +251,17 @@ export default function WelcomeScreen() {
             </View>
           ) : null}
 
-          <Text style={styles.note}>Uses the same secure Supabase account as Nexez.</Text>
+          <View
+            style={styles.footerRow}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <View style={styles.lock}>
+              <View style={styles.lockShackle} />
+              <View style={styles.lockBody} />
+            </View>
+            <Text style={styles.note}>SAME SECURE ACCOUNT AS NEXEZ</Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -276,90 +288,98 @@ const styles = StyleSheet.create({
   hero: {
     paddingTop: 34,
   },
-  orb: {
-    width: 70,
-    height: 70,
-    borderRadius: 28,
-    backgroundColor: colors.signal,
-    shadowColor: colors.signal,
-    shadowOpacity: 0.45,
-    shadowRadius: 30,
+  wordmarkRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
     marginBottom: 24,
   },
+  wordmark: {
+    color: colors.text,
+    fontFamily: font.serif,
+    fontSize: 25,
+    letterSpacing: -0.4,
+  },
+  wordmarkDot: {
+    width: 7,
+    height: 7,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accent,
+    marginLeft: 3,
+    marginBottom: 6,
+  },
   kicker: {
-    color: colors.signal,
-    fontSize: 13,
-    fontWeight: '900',
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
     textTransform: 'uppercase',
-    letterSpacing: 2.6,
+    letterSpacing: 1.3,
   },
   title: {
     color: colors.text,
-    fontSize: 40,
-    lineHeight: 43,
-    fontWeight: '900',
-    letterSpacing: -2.1,
-    marginTop: 10,
-  },
-  subtitle: {
-    color: colors.muted,
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 16,
+    fontFamily: font.serif,
+    fontSize: 34,
+    lineHeight: 37,
+    letterSpacing: -0.6,
+    marginTop: 12,
   },
   panel: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.xl,
-    backgroundColor: 'rgba(255,255,255,0.055)',
+    backgroundColor: colors.panel,
     padding: 16,
     gap: 12,
   },
-  segment: {
+  tabRow: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.30)',
-    borderRadius: 18,
-    padding: 4,
-    gap: 4,
+    gap: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSoft,
+    marginBottom: 4,
   },
-  segmentButton: {
-    flex: 1,
-    alignItems: 'center',
-    borderRadius: 14,
-    paddingVertical: 10,
+  tab: {
+    alignItems: 'flex-start',
   },
-  segmentActive: {
-    backgroundColor: colors.text,
+  tabText: {
+    color: colors.text3,
+    fontFamily: font.sans600,
+    fontSize: 14,
+    paddingBottom: 10,
   },
-  segmentText: {
-    color: colors.muted,
-    fontWeight: '800',
-    fontSize: 13,
+  tabTextActive: {
+    color: colors.text,
   },
-  segmentTextActive: {
-    color: '#050507',
+  tabUnderline: {
+    height: 2,
+    alignSelf: 'stretch',
+    backgroundColor: 'transparent',
+    marginBottom: -1,
+  },
+  tabUnderlineActive: {
+    backgroundColor: colors.accent,
   },
   input: {
     minHeight: 54,
-    borderRadius: 18,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.28)',
+    backgroundColor: colors.panel,
     paddingHorizontal: 14,
     color: colors.text,
+    fontFamily: font.sans,
     fontSize: 15,
   },
   primary: {
     minHeight: 54,
-    borderRadius: 18,
-    backgroundColor: colors.signal,
+    borderRadius: radius.md,
+    backgroundColor: colors.text,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
   },
   primaryText: {
-    color: '#001313',
-    fontWeight: '900',
+    color: colors.onAccent,
+    fontFamily: font.sans700,
     fontSize: 15,
   },
   disabled: {
@@ -367,23 +387,26 @@ const styles = StyleSheet.create({
   },
   error: {
     color: colors.danger,
+    fontFamily: font.sans,
     fontSize: 13,
     lineHeight: 18,
   },
   note: {
-    color: colors.faint,
-    fontSize: 12,
-    textAlign: 'center',
+    color: colors.success,
+    fontFamily: font.mono,
+    fontSize: 9,
+    letterSpacing: 1.1,
   },
   info: {
-    color: colors.signal,
+    color: colors.accent,
+    fontFamily: font.sans,
     fontSize: 13,
     lineHeight: 18,
   },
   link: {
-    color: colors.signal,
+    color: colors.accent,
+    fontFamily: font.sans600,
     fontSize: 13,
-    fontWeight: '700',
     textAlign: 'center',
     paddingVertical: 4,
   },
@@ -394,9 +417,9 @@ const styles = StyleSheet.create({
   },
   resetTitle: {
     color: colors.text,
-    fontSize: 17,
-    fontWeight: '900',
-    letterSpacing: -0.4,
+    fontFamily: font.serif,
+    fontSize: 20,
+    letterSpacing: -0.3,
   },
   socialBlock: {
     gap: 10,
@@ -413,9 +436,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   dividerText: {
-    color: colors.faint,
-    fontSize: 12,
-    fontWeight: '700',
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
   },
   appleButton: {
     height: 50,
@@ -423,16 +448,45 @@ const styles = StyleSheet.create({
   },
   googleButton: {
     minHeight: 50,
-    borderRadius: 18,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
   googleButtonText: {
     color: colors.text,
+    fontFamily: font.sans600,
     fontSize: 15,
-    fontWeight: '800',
+  },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    marginTop: 2,
+  },
+  lock: {
+    width: 10,
+    height: 12,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  lockShackle: {
+    width: 6,
+    height: 6,
+    borderColor: colors.success,
+    borderWidth: 1.4,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 3,
+    borderTopRightRadius: 3,
+    marginBottom: -1,
+  },
+  lockBody: {
+    width: 10,
+    height: 7,
+    borderRadius: 2,
+    backgroundColor: colors.success,
   },
 })

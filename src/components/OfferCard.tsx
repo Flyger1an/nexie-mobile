@@ -1,7 +1,7 @@
 import * as WebBrowser from 'expo-web-browser'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { colors, radius } from '@/lib/theme'
+import { cardShadow, colors, font, radius } from '@/lib/theme'
 import type { NexieCard } from '@/lib/types'
 
 type OfferCardProps = {
@@ -17,6 +17,11 @@ export function OfferCard({ card, onBook, onNegotiate, disabled }: OfferCardProp
   const external = !!card.source && card.source.id !== 'nexez'
   return (
     <View style={styles.card}>
+      <View
+        style={styles.topRule}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      />
       <View style={styles.header}>
         <View
           style={[styles.mark, external ? styles.markExternal : null]}
@@ -76,12 +81,24 @@ export function OfferCard({ card, onBook, onNegotiate, disabled }: OfferCardProp
 
 const styles = StyleSheet.create({
   card: {
+    position: 'relative',
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.045)',
+    backgroundColor: colors.panel,
     borderRadius: radius.lg,
     padding: 16,
+    paddingTop: 18,
     gap: 12,
+    overflow: 'hidden',
+    ...cardShadow,
+  },
+  topRule: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: colors.accent,
   },
   header: {
     flexDirection: 'row',
@@ -91,47 +108,45 @@ const styles = StyleSheet.create({
   mark: {
     width: 38,
     height: 38,
-    borderRadius: 15,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(45,212,191,0.16)',
+    backgroundColor: colors.text,
   },
   markText: {
-    color: colors.signal,
-    fontWeight: '900',
+    color: colors.onAccent,
+    fontFamily: font.serif,
+    fontSize: 20,
   },
   markExternal: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: colors.panel2,
   },
   markTextExternal: {
-    color: colors.muted,
+    color: colors.text2,
   },
   titleWrap: {
     flex: 1,
   },
   title: {
     color: colors.text,
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: -0.4,
+    fontFamily: font.serif,
+    fontSize: 17,
+    letterSpacing: -0.2,
   },
   subline: {
-    color: colors.faint,
-    fontSize: 12,
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 11,
     marginTop: 3,
   },
   price: {
-    color: colors.signal,
-    fontSize: 12,
-    fontWeight: '800',
-    borderWidth: 1,
-    borderColor: 'rgba(45,212,191,0.25)',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
+    color: colors.text,
+    fontFamily: font.serif,
+    fontSize: 18,
   },
   description: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans,
     fontSize: 13,
     lineHeight: 19,
   },
@@ -141,27 +156,27 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   primaryButton: {
-    backgroundColor: colors.signal,
-    borderRadius: 999,
+    backgroundColor: colors.text,
+    borderRadius: radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   primaryText: {
-    color: '#001313',
-    fontWeight: '900',
+    color: colors.onAccent,
+    fontFamily: font.sans700,
     fontSize: 12,
   },
   secondaryButton: {
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.24)',
-    borderRadius: 999,
+    backgroundColor: 'transparent',
+    borderRadius: radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   secondaryText: {
     color: colors.text,
-    fontWeight: '700',
+    fontFamily: font.sans600,
     fontSize: 12,
   },
   disabled: {

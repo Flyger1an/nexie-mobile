@@ -7,25 +7,52 @@ import { useAuth } from '@/context/auth'
 import { tapHaptic } from '@/lib/haptics'
 import { markOnboardingComplete } from '@/lib/onboarding'
 import { registerPushTokenForSession } from '@/lib/push-notifications'
-import { colors } from '@/lib/theme'
+import { colors, font, radius } from '@/lib/theme'
 
-const PANELS = [
+type PanelIcon = 'dot' | 'check' | 'bell'
+
+const PANELS: { icon: PanelIcon; title: string; body: string }[] = [
   {
-    glyph: '🧭',
+    icon: 'dot',
     title: 'Meet Nexxi',
     body: 'Your personal buyer agent. Tell Nexxi what you want — it searches the agent-ready web, compares offers, and negotiates for you, by text or voice.',
   },
   {
-    glyph: '✅',
+    icon: 'check',
     title: 'You stay in control',
     body: 'Nexxi can make mistakes, so it always asks for your approval before it negotiates or opens checkout. Nothing moves without your tap.',
   },
   {
-    glyph: '🔔',
+    icon: 'bell',
     title: 'Never miss a reply',
     body: 'Get notified the moment a seller responds or a booking is confirmed, so a deal never stalls while you wait.',
   },
 ]
+
+function PanelGlyph({ icon }: { icon: PanelIcon }) {
+  if (icon === 'check') {
+    return (
+      <View style={styles.glyphBox}>
+        <View style={styles.checkShort} />
+        <View style={styles.checkLong} />
+      </View>
+    )
+  }
+  if (icon === 'bell') {
+    return (
+      <View style={styles.glyphBox}>
+        <View style={styles.bellBody} />
+        <View style={styles.bellRim} />
+        <View style={styles.bellClapper} />
+      </View>
+    )
+  }
+  return (
+    <View style={styles.glyphBox}>
+      <View style={styles.dot} />
+    </View>
+  )
+}
 
 export default function OnboardingScreen() {
   const router = useRouter()
@@ -52,6 +79,8 @@ export default function OnboardingScreen() {
     setStep((s) => s + 1)
   }
 
+  const stepLabel = String(step + 1).padStart(2, '0')
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.top}>
@@ -61,13 +90,24 @@ export default function OnboardingScreen() {
       </View>
 
       <View style={styles.body}>
-        <Text
+        <View
+          style={styles.stepRow}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
-          style={styles.glyph}
         >
-          {panel.glyph}
-        </Text>
+          <Text style={styles.stepNum}>STEP {stepLabel}</Text>
+          <View style={styles.stepRule} />
+          <Text style={styles.stepTotal}>03</Text>
+        </View>
+
+        <View
+          style={styles.glyphCircle}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          <PanelGlyph icon={panel.icon} />
+        </View>
+
         <Text accessibilityRole="header" style={styles.title}>{panel.title}</Text>
         <Text style={styles.copy}>{panel.body}</Text>
       </View>
@@ -75,7 +115,7 @@ export default function OnboardingScreen() {
       <View style={styles.footer}>
         <View style={styles.dots}>
           {PANELS.map((p, i) => (
-            <View key={p.title} style={[styles.dot, i === step ? styles.dotActive : null]} />
+            <View key={p.title} style={[styles.dash, i === step ? styles.dashActive : null]} />
           ))}
         </View>
         <View style={styles.actions}>
@@ -120,9 +160,9 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   skip: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans600,
     fontSize: 14,
-    fontWeight: '800',
   },
   body: {
     flex: 1,
@@ -130,19 +170,104 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     gap: 18,
   },
-  glyph: {
-    fontSize: 64,
+  stepRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  stepNum: {
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 1.3,
+  },
+  stepRule: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  stepTotal: {
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 1.3,
+  },
+  glyphCircle: {
+    width: 54,
+    height: 54,
+    borderRadius: radius.pill,
+    borderWidth: 1.5,
+    borderColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glyphBox: {
+    width: 22,
+    height: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accent,
+  },
+  checkShort: {
+    position: 'absolute',
+    left: 4,
+    top: 11,
+    width: 6,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: colors.accent,
+    transform: [{ rotate: '45deg' }],
+  },
+  checkLong: {
+    position: 'absolute',
+    left: 7,
+    top: 9,
+    width: 12,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: colors.accent,
+    transform: [{ rotate: '-50deg' }],
+  },
+  bellBody: {
+    width: 13,
+    height: 12,
+    borderColor: colors.accent,
+    borderWidth: 1.5,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 7,
+    borderTopRightRadius: 7,
+  },
+  bellRim: {
+    width: 18,
+    height: 1.5,
+    backgroundColor: colors.accent,
+    marginTop: -0.5,
+  },
+  bellClapper: {
+    width: 3,
+    height: 3,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accent,
+    marginTop: 1,
   },
   title: {
     color: colors.text,
-    fontSize: 34,
-    fontWeight: '900',
-    letterSpacing: -1.6,
+    fontFamily: font.serif,
+    fontSize: 42,
+    lineHeight: 46,
+    letterSpacing: -0.8,
+    marginTop: 4,
   },
   copy: {
-    color: colors.muted,
-    fontSize: 17,
-    lineHeight: 26,
+    color: colors.text2,
+    fontFamily: font.sans,
+    fontSize: 15,
+    lineHeight: 23,
   },
   footer: {
     paddingHorizontal: 20,
@@ -154,15 +279,15 @@ const styles = StyleSheet.create({
     gap: 8,
     justifyContent: 'center',
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 99,
-    backgroundColor: 'rgba(255,255,255,0.18)',
+  dash: {
+    width: 16,
+    height: 3,
+    borderRadius: radius.pill,
+    backgroundColor: colors.border,
   },
-  dotActive: {
-    backgroundColor: colors.signal,
-    width: 22,
+  dashActive: {
+    backgroundColor: colors.accent,
+    width: 30,
   },
   actions: {
     flexDirection: 'row',
@@ -174,9 +299,9 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   backText: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans600,
     fontSize: 15,
-    fontWeight: '800',
   },
   backSpacer: {
     width: 0,
@@ -184,14 +309,14 @@ const styles = StyleSheet.create({
   primary: {
     flex: 1,
     minHeight: 54,
-    borderRadius: 18,
-    backgroundColor: colors.signal,
+    borderRadius: radius.md,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primaryText: {
-    color: '#001313',
+    color: colors.accentInk,
+    fontFamily: font.sans700,
     fontSize: 16,
-    fontWeight: '900',
   },
 })

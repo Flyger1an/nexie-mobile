@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { DiscoverCard } from '@/components/DiscoverCard'
 import { tapHaptic } from '@/lib/haptics'
 import { catalogCategories, catalogSearchText, fetchCatalog } from '@/lib/discover-api'
-import { colors, radius } from '@/lib/theme'
+import { colors, font, radius } from '@/lib/theme'
 import type { NexieCatalogPage } from '@/lib/types'
 
 export default function DiscoverScreen() {
@@ -112,7 +112,7 @@ export default function DiscoverScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder="Search by name, place, or service"
-          placeholderTextColor={colors.faint}
+          placeholderTextColor={colors.text3}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
@@ -202,24 +202,25 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chip: {
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: 'transparent',
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
   chipActive: {
-    borderColor: 'rgba(45,212,191,0.5)',
-    backgroundColor: 'rgba(45,212,191,0.14)',
+    borderColor: colors.text,
+    backgroundColor: colors.text,
   },
   chipText: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans600,
     fontSize: 13,
-    fontWeight: '800',
   },
   chipTextActive: {
-    color: colors.signal,
+    color: colors.onAccent,
+    fontFamily: font.sans700,
   },
   header: {
     paddingHorizontal: 20,
@@ -227,20 +228,21 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   kicker: {
-    color: colors.signal,
-    fontSize: 12,
-    fontWeight: '900',
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
     textTransform: 'uppercase',
-    letterSpacing: 1.8,
+    letterSpacing: 1.3,
   },
   title: {
     color: colors.text,
-    fontSize: 26,
-    fontWeight: '900',
-    letterSpacing: -1.1,
+    fontFamily: font.serif,
+    fontSize: 28,
+    letterSpacing: -0.4,
   },
   subtitle: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans,
     fontSize: 14,
     lineHeight: 20,
     marginTop: 2,
@@ -255,9 +257,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.28)',
+    backgroundColor: colors.panel,
     paddingHorizontal: 14,
     color: colors.text,
+    fontFamily: font.sans,
     fontSize: 15,
   },
   center: {
@@ -270,11 +273,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: colors.danger,
+    fontFamily: font.sans,
     fontSize: 14,
     textAlign: 'center',
   },
   retry: {
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 18,
@@ -282,17 +286,18 @@ const styles = StyleSheet.create({
   },
   retryText: {
     color: colors.text,
-    fontWeight: '800',
+    fontFamily: font.sans600,
     fontSize: 13,
   },
   emptyTitle: {
     color: colors.text,
-    fontSize: 18,
-    fontWeight: '900',
-    letterSpacing: -0.5,
+    fontFamily: font.serif,
+    fontSize: 22,
+    letterSpacing: -0.3,
   },
   emptyBody: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans,
     fontSize: 14,
     lineHeight: 21,
     textAlign: 'center',

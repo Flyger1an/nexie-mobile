@@ -18,7 +18,7 @@ import { useAuth } from '@/context/auth'
 import { errorHaptic, tapHaptic, successHaptic } from '@/lib/haptics'
 import { deleteAccount, exportAccount } from '@/lib/account-api'
 import { fetchPreferences, updatePreferences } from '@/lib/preferences-api'
-import { colors, radius } from '@/lib/theme'
+import { cardShadow, colors, font, radius } from '@/lib/theme'
 import type { NexieAvailableSource, NexiePreferences, NexieTiming } from '@/lib/types'
 
 const TIMING_OPTIONS: { label: string; value: NexieTiming | null }[] = [
@@ -205,18 +205,18 @@ export default function ProfileScreen() {
         <Text style={styles.subtitle}>Nexxi uses your Nexez account and keeps buyer memory scoped to you.</Text>
 
         <View style={styles.card}>
-          <Text style={styles.label}>Signed in as</Text>
+          <Text style={styles.eyebrow}>SIGNED IN AS</Text>
           <Text style={styles.value}>{user?.email ?? 'Unknown account'}</Text>
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Buyer preferences</Text>
+          <Text style={styles.sectionEyebrow}>BUYER PREFERENCES</Text>
           <Text style={styles.sectionHint}>Nexxi honors these every time it searches and negotiates for you.</Text>
         </View>
 
         {loading ? (
           <View style={styles.loading}>
-            <ActivityIndicator color={colors.signal} />
+            <ActivityIndicator color={colors.accent} />
           </View>
         ) : (
           <>
@@ -232,23 +232,25 @@ export default function ProfileScreen() {
                   }}
                   keyboardType="decimal-pad"
                   placeholder="Any"
-                  placeholderTextColor={colors.faint}
+                  placeholderTextColor={colors.text3}
                   accessibilityLabel="Budget ceiling amount"
                   style={[styles.input, styles.budgetInput]}
                 />
-                <TextInput
-                  value={currency}
-                  onChangeText={(t) => {
-                    setCurrency(t.toUpperCase().slice(0, 3))
-                    markDirty()
-                  }}
-                  autoCapitalize="characters"
-                  maxLength={3}
-                  placeholder="USD"
-                  placeholderTextColor={colors.faint}
-                  accessibilityLabel="Currency code"
-                  style={[styles.input, styles.currencyInput]}
-                />
+                <View style={styles.currencyBox}>
+                  <TextInput
+                    value={currency}
+                    onChangeText={(t) => {
+                      setCurrency(t.toUpperCase().slice(0, 3))
+                      markDirty()
+                    }}
+                    autoCapitalize="characters"
+                    maxLength={3}
+                    placeholder="USD"
+                    placeholderTextColor={colors.text3}
+                    accessibilityLabel="Currency code"
+                    style={styles.currencyInput}
+                  />
+                </View>
               </View>
               <Text style={styles.fieldHint}>Soft guidance — Nexxi confirms before exceeding it.</Text>
             </View>
@@ -273,7 +275,7 @@ export default function ProfileScreen() {
                   onSubmitEditing={addCategory}
                   returnKeyType="done"
                   placeholder="e.g. cleaning, web design"
-                  placeholderTextColor={colors.faint}
+                  placeholderTextColor={colors.text3}
                   accessibilityLabel="Add an interest"
                   style={[styles.input, styles.flex1]}
                 />
@@ -325,7 +327,7 @@ export default function ProfileScreen() {
                   markDirty()
                 }}
                 placeholder="City or area"
-                placeholderTextColor={colors.faint}
+                placeholderTextColor={colors.text3}
                 accessibilityLabel="Location"
                 style={styles.input}
               />
@@ -344,8 +346,8 @@ export default function ProfileScreen() {
                   markDirty()
                 }}
                 accessibilityLabel="Speak replies by default"
-                trackColor={{ false: 'rgba(255,255,255,0.16)', true: 'rgba(45,212,191,0.6)' }}
-                thumbColor={voiceDefault ? colors.signal : '#f4f3f4'}
+                trackColor={{ false: colors.panel2, true: colors.accent }}
+                thumbColor={colors.text}
               />
             </View>
 
@@ -362,14 +364,14 @@ export default function ProfileScreen() {
                   markDirty()
                 }}
                 accessibilityLabel="Push notifications"
-                trackColor={{ false: 'rgba(255,255,255,0.16)', true: 'rgba(45,212,191,0.6)' }}
-                thumbColor={notifications ? colors.signal : '#f4f3f4'}
+                trackColor={{ false: colors.panel2, true: colors.accent }}
+                thumbColor={colors.text}
               />
             </View>
 
             {/* Search sources */}
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Search sources</Text>
+              <Text style={styles.sectionEyebrow}>SEARCH SOURCES</Text>
               <Text style={styles.fieldHint}>Nexez offers are bookable. Other sources add discovery results you can view.</Text>
               {availableSources.map((src) => (
                 <View key={src.id} style={styles.sourceRow}>
@@ -381,8 +383,8 @@ export default function ProfileScreen() {
                       value={isSourceOn(src.id)}
                       onValueChange={() => toggleSource(src.id)}
                       accessibilityLabel={`Include ${src.label} in search results`}
-                      trackColor={{ false: 'rgba(255,255,255,0.16)', true: 'rgba(45,212,191,0.6)' }}
-                      thumbColor={isSourceOn(src.id) ? colors.signal : '#f4f3f4'}
+                      trackColor={{ false: colors.panel2, true: colors.accent }}
+                      thumbColor={colors.text}
                     />
                   )}
                 </View>
@@ -403,7 +405,7 @@ export default function ProfileScreen() {
               disabled={saving}
             >
               {saving ? (
-                <ActivityIndicator color="#001313" />
+                <ActivityIndicator color={colors.onAccent} />
               ) : (
                 <Text style={styles.saveText}>{saved ? 'Saved ✓' : 'Save preferences'}</Text>
               )}
@@ -456,7 +458,7 @@ export default function ProfileScreen() {
             disabled={exporting}
           >
             {exporting ? (
-              <ActivityIndicator color={colors.signal} />
+              <ActivityIndicator color={colors.text} />
             ) : (
               <Text style={styles.exportBtnText}>Export my data</Text>
             )}
@@ -477,7 +479,7 @@ export default function ProfileScreen() {
             autoCapitalize="characters"
             autoCorrect={false}
             placeholder="Type DELETE to confirm"
-            placeholderTextColor={colors.faint}
+            placeholderTextColor={colors.text3}
             accessibilityLabel="Type DELETE to confirm account deletion"
             style={[styles.input, styles.dangerInput]}
           />
@@ -514,12 +516,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
+    fontFamily: font.serif,
     fontSize: 34,
-    fontWeight: '900',
-    letterSpacing: -1.8,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans400,
     fontSize: 15,
     lineHeight: 23,
   },
@@ -527,34 +530,37 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.045)',
+    backgroundColor: colors.panel,
     padding: 16,
     gap: 6,
+    ...cardShadow,
   },
-  label: {
-    color: colors.faint,
-    fontSize: 12,
-    fontWeight: '900',
+  eyebrow: {
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 10,
     textTransform: 'uppercase',
-    letterSpacing: 1.4,
+    letterSpacing: 1.3,
   },
   value: {
     color: colors.text,
-    fontSize: 16,
-    fontWeight: '800',
+    fontFamily: font.serif,
+    fontSize: 18,
   },
   sectionHeader: {
     marginTop: 6,
-    gap: 4,
+    gap: 6,
   },
-  sectionTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '900',
-    letterSpacing: -0.5,
+  sectionEyebrow: {
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1.3,
   },
   sectionHint: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans400,
     fontSize: 13,
     lineHeight: 19,
   },
@@ -567,11 +573,12 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     color: colors.text,
+    fontFamily: font.sans600,
     fontSize: 14,
-    fontWeight: '800',
   },
   fieldHint: {
-    color: colors.faint,
+    color: colors.text3,
+    fontFamily: font.sans400,
     fontSize: 12,
     lineHeight: 17,
   },
@@ -580,9 +587,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.28)',
+    backgroundColor: colors.panel2,
     paddingHorizontal: 14,
     color: colors.text,
+    fontFamily: font.sans,
     fontSize: 15,
   },
   budgetRow: {
@@ -591,11 +599,26 @@ const styles = StyleSheet.create({
   },
   budgetInput: {
     flex: 1,
+    fontFamily: font.serif,
+    fontSize: 20,
+  },
+  currencyBox: {
+    width: 88,
+    minHeight: 48,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.panel2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   currencyInput: {
-    width: 88,
+    width: '100%',
     textAlign: 'center',
-    fontWeight: '800',
+    color: colors.text,
+    fontFamily: font.mono600,
+    fontSize: 14,
+    letterSpacing: 1.2,
   },
   flex1: {
     flex: 1,
@@ -609,58 +632,60 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: 'rgba(45,212,191,0.5)',
-    backgroundColor: 'rgba(45,212,191,0.12)',
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   chipText: {
-    color: colors.text,
+    color: colors.accent,
+    fontFamily: font.sans600,
     fontSize: 13,
-    fontWeight: '800',
   },
   chipX: {
-    color: colors.signal,
+    color: colors.accent,
+    fontFamily: font.sans700,
     fontSize: 12,
-    fontWeight: '900',
   },
   addBtn: {
     borderRadius: radius.md,
-    backgroundColor: colors.signal,
+    backgroundColor: colors.text,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 18,
   },
   addBtnText: {
-    color: '#001313',
+    color: colors.onAccent,
+    fontFamily: font.sans700,
     fontSize: 14,
-    fontWeight: '900',
   },
   segment: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.30)',
-    borderRadius: 16,
+    backgroundColor: colors.panel2,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 4,
     gap: 4,
   },
   segmentBtn: {
     flex: 1,
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: radius.sm,
     paddingVertical: 10,
   },
   segmentActive: {
     backgroundColor: colors.text,
   },
   segmentText: {
-    color: colors.muted,
-    fontWeight: '800',
+    color: colors.text2,
+    fontFamily: font.sans600,
     fontSize: 12,
   },
   segmentTextActive: {
-    color: '#050507',
+    color: colors.onAccent,
   },
   switchRow: {
     flexDirection: 'row',
@@ -676,50 +701,51 @@ const styles = StyleSheet.create({
   },
   sourceLabel: {
     color: colors.text,
+    fontFamily: font.sans600,
     fontSize: 15,
-    fontWeight: '700',
   },
   sourceCore: {
-    color: colors.faint,
-    fontSize: 12,
-    fontWeight: '800',
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 10,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.3,
   },
   error: {
     color: colors.danger,
+    fontFamily: font.sans,
     fontSize: 13,
     lineHeight: 18,
   },
   save: {
     minHeight: 52,
-    borderRadius: 18,
-    backgroundColor: colors.signal,
+    borderRadius: radius.lg,
+    backgroundColor: colors.text,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
   },
   saveText: {
-    color: '#001313',
+    color: colors.onAccent,
+    fontFamily: font.sans700,
     fontSize: 15,
-    fontWeight: '900',
   },
   disabled: {
     opacity: 0.5,
   },
   signOut: {
     marginTop: 12,
-    borderRadius: 18,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(251,113,133,0.35)',
-    backgroundColor: 'rgba(251,113,133,0.10)',
+    borderColor: colors.border,
+    backgroundColor: colors.panel,
     alignItems: 'center',
     paddingVertical: 15,
   },
   signOutText: {
-    color: colors.danger,
+    color: colors.text2,
+    fontFamily: font.sans600,
     fontSize: 15,
-    fontWeight: '900',
   },
   dangerZone: {
     marginTop: 28,
@@ -732,11 +758,12 @@ const styles = StyleSheet.create({
   },
   dangerTitle: {
     color: colors.danger,
-    fontSize: 15,
-    fontWeight: '900',
+    fontFamily: font.serif,
+    fontSize: 20,
   },
   dangerHint: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans400,
     fontSize: 12,
     lineHeight: 17,
   },
@@ -754,8 +781,8 @@ const styles = StyleSheet.create({
   },
   deleteBtnText: {
     color: colors.danger,
+    fontFamily: font.sans700,
     fontSize: 14,
-    fontWeight: '900',
   },
   legalRow: {
     flexDirection: 'row',
@@ -765,12 +792,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   legalLink: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans600,
     fontSize: 13,
-    fontWeight: '700',
   },
   legalDot: {
-    color: colors.faint,
+    color: colors.text3,
+    fontFamily: font.sans,
     fontSize: 13,
   },
   safetyNote: {
@@ -780,11 +808,12 @@ const styles = StyleSheet.create({
   },
   safetyTitle: {
     color: colors.text,
-    fontSize: 14,
-    fontWeight: '800',
+    fontFamily: font.serif,
+    fontSize: 20,
   },
   safetyBody: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans400,
     fontSize: 12,
     lineHeight: 17,
   },
@@ -796,24 +825,27 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
+    backgroundColor: colors.panel,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
   },
   exportBtnText: {
     color: colors.text,
+    fontFamily: font.sans600,
     fontSize: 14,
-    fontWeight: '800',
   },
   exportHint: {
     marginTop: 8,
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans400,
     fontSize: 12,
     lineHeight: 17,
   },
   exportError: {
     marginTop: 8,
     color: colors.danger,
+    fontFamily: font.sans,
     fontSize: 13,
   },
 })

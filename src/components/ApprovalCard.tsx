@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { decisionHaptic } from '@/lib/haptics'
-import { colors, radius } from '@/lib/theme'
+import { cardShadow, colors, font, radius } from '@/lib/theme'
 import type { NexieCard } from '@/lib/types'
 
 type ApprovalCardProps = {
@@ -21,6 +21,18 @@ export function ApprovalCard({ card, disabled, onDecision }: ApprovalCardProps) 
       </View>
       <Text style={styles.title}>{card.title}</Text>
       <Text style={styles.summary}>{card.summary}</Text>
+
+      <View
+        style={styles.trustRow}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <View style={styles.lock}>
+          <View style={styles.lockShackle} />
+          <View style={styles.lockBody} />
+        </View>
+        <Text style={styles.trustText}>SECURED BY STRIPE · YOU APPROVE EVERY CHARGE</Text>
+      </View>
 
       <View style={styles.actions}>
         <Pressable
@@ -47,7 +59,10 @@ export function ApprovalCard({ card, disabled, onDecision }: ApprovalCardProps) 
             onDecision(card.id, 'approved')
           }}
         >
-          <Text style={styles.approveText}>Approve</Text>
+          <Text style={styles.approveText}>
+            <Text style={styles.approveCheck}>✓ </Text>
+            Approve
+          </Text>
         </Pressable>
       </View>
     </View>
@@ -58,8 +73,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(45,212,191,0.32)',
-    backgroundColor: 'rgba(45,212,191,0.10)',
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
     padding: 16,
     gap: 10,
   },
@@ -69,26 +84,64 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   kicker: {
-    color: colors.signal,
-    fontSize: 12,
-    fontWeight: '800',
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
     textTransform: 'uppercase',
-    letterSpacing: 1.1,
+    letterSpacing: 1.3,
   },
   status: {
-    color: colors.faint,
-    fontSize: 11,
-    fontWeight: '800',
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1.3,
   },
   title: {
     color: colors.text,
-    fontSize: 16,
-    fontWeight: '900',
+    fontFamily: font.serif,
+    fontSize: 18,
+    letterSpacing: -0.2,
   },
   summary: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans,
     fontSize: 13,
     lineHeight: 20,
+  },
+  trustRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginTop: 2,
+  },
+  lock: {
+    width: 10,
+    height: 12,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  lockShackle: {
+    width: 6,
+    height: 6,
+    borderColor: colors.success,
+    borderWidth: 1.4,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 3,
+    borderTopRightRadius: 3,
+    marginBottom: -1,
+  },
+  lockBody: {
+    width: 10,
+    height: 7,
+    borderRadius: 2,
+    backgroundColor: colors.success,
+  },
+  trustText: {
+    color: colors.success,
+    fontFamily: font.mono,
+    fontSize: 9,
+    letterSpacing: 1.1,
   },
   actions: {
     flexDirection: 'row',
@@ -98,26 +151,33 @@ const styles = StyleSheet.create({
   approve: {
     flex: 1,
     alignItems: 'center',
-    borderRadius: 16,
-    backgroundColor: colors.signal,
+    borderRadius: radius.md,
+    backgroundColor: colors.success,
     paddingVertical: 13,
+    ...cardShadow,
   },
   approveText: {
-    color: '#001313',
-    fontWeight: '900',
+    color: colors.onAccent,
+    fontFamily: font.sans700,
+    fontSize: 14,
+  },
+  approveCheck: {
+    color: colors.onAccent,
+    fontFamily: font.sans700,
   },
   decline: {
     flex: 1,
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.22)',
+    backgroundColor: 'transparent',
     paddingVertical: 13,
   },
   declineText: {
     color: colors.text,
-    fontWeight: '800',
+    fontFamily: font.sans600,
+    fontSize: 14,
   },
   disabled: {
     opacity: 0.48,

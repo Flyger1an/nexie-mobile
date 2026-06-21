@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { colors, radius } from '@/lib/theme'
+import { cardShadow, colors, font, radius } from '@/lib/theme'
 import type { NexieCatalogPage } from '@/lib/types'
 
 type DiscoverCardProps = {
@@ -78,9 +78,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.045)',
+    backgroundColor: colors.panel,
     padding: 16,
     gap: 8,
+    ...cardShadow,
   },
   topRow: {
     flexDirection: 'row',
@@ -91,32 +92,35 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     color: colors.text,
-    fontSize: 17,
-    fontWeight: '900',
-    letterSpacing: -0.4,
+    fontFamily: font.serif,
+    fontSize: 20,
+    letterSpacing: -0.2,
   },
   certified: {
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: 'rgba(45,212,191,0.5)',
-    backgroundColor: 'rgba(45,212,191,0.14)',
+    borderColor: colors.accent,
+    backgroundColor: 'transparent',
     paddingHorizontal: 9,
     paddingVertical: 3,
   },
   certifiedText: {
-    color: colors.signal,
-    fontSize: 11,
-    fontWeight: '900',
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1.3,
   },
   location: {
-    color: colors.faint,
-    fontSize: 12,
-    fontWeight: '800',
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 11,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.3,
   },
   description: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans,
     fontSize: 14,
     lineHeight: 20,
   },
@@ -130,7 +134,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 10,
@@ -140,12 +144,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 99,
-    backgroundColor: colors.signal,
+    backgroundColor: colors.accent,
   },
   metaText: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans600,
     fontSize: 12,
-    fontWeight: '800',
   },
   actions: {
     flexDirection: 'row',
@@ -154,18 +158,18 @@ const styles = StyleSheet.create({
   },
   ask: {
     flex: 1,
-    borderRadius: 16,
-    backgroundColor: colors.signal,
+    borderRadius: radius.md,
+    backgroundColor: colors.text,
     alignItems: 'center',
     paddingVertical: 12,
   },
   askText: {
-    color: '#001313',
+    color: colors.onAccent,
+    fontFamily: font.sans700,
     fontSize: 14,
-    fontWeight: '900',
   },
   view: {
-    borderRadius: 16,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',
@@ -174,7 +178,7 @@ const styles = StyleSheet.create({
   },
   viewText: {
     color: colors.text,
+    fontFamily: font.sans600,
     fontSize: 14,
-    fontWeight: '800',
   },
 })

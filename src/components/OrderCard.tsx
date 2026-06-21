@@ -1,15 +1,17 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { colors, radius } from '@/lib/theme'
+import { colors, font, radius } from '@/lib/theme'
 import type { NexieOrderSummary } from '@/lib/types'
 
 type StatusTone = 'success' | 'warn' | 'danger' | 'neutral'
 
+// Outlined chip per status semantics: Paid → success (green), In progress → neutral ink (text2),
+// Refunded/warning → amber, failed → danger. Border + text take the tone; fill stays transparent.
 const toneColor: Record<StatusTone, string> = {
   success: colors.success,
-  warn: '#FBBF24',
+  warn: colors.amber,
   danger: colors.danger,
-  neutral: colors.muted,
+  neutral: colors.text2,
 }
 
 function statusInfo(status: string): { label: string; tone: StatusTone } {
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.045)',
+    backgroundColor: colors.panel,
     borderRadius: radius.lg,
     padding: 16,
     gap: 10,
@@ -102,26 +104,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   kind: {
-    color: colors.signal,
-    fontSize: 11,
-    fontWeight: '900',
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
     textTransform: 'uppercase',
-    letterSpacing: 1.4,
+    letterSpacing: 1.3,
   },
   statusPill: {
     borderWidth: 1,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     paddingHorizontal: 9,
     paddingVertical: 4,
+    backgroundColor: 'transparent',
   },
   statusText: {
-    fontSize: 11,
-    fontWeight: '800',
+    fontFamily: font.mono,
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   title: {
     color: colors.text,
-    fontSize: 16,
-    fontWeight: '800',
+    fontFamily: font.serif,
+    fontSize: 19,
     letterSpacing: -0.4,
   },
   metaRow: {
@@ -132,13 +137,14 @@ const styles = StyleSheet.create({
   },
   seller: {
     flex: 1,
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans,
     fontSize: 13,
   },
   amount: {
     color: colors.text,
-    fontSize: 14,
-    fontWeight: '800',
+    fontFamily: font.serif,
+    fontSize: 18,
   },
   footer: {
     flexDirection: 'row',
@@ -147,12 +153,15 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   date: {
-    color: colors.faint,
-    fontSize: 12,
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   link: {
-    color: colors.signal,
+    color: colors.accent,
+    fontFamily: font.sans600,
     fontSize: 12,
-    fontWeight: '800',
   },
 })

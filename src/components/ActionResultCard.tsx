@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { colors, radius } from '@/lib/theme'
+import { cardShadow, colors, font, radius } from '@/lib/theme'
 import type { NexieCard } from '@/lib/types'
 
 export function ActionResultCard({ card }: { card: Extract<NexieCard, { type: 'action_result' }> }) {
@@ -20,11 +20,23 @@ export function ActionResultCard({ card }: { card: Extract<NexieCard, { type: 'a
   }
 
   return (
-    <View style={[styles.card, ok ? styles.ok : styles.error]}>
+    <View style={styles.card}>
+      <View
+        style={[styles.topRule, ok ? null : styles.topRuleError]}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      />
+      <Text style={[styles.eyebrow, ok ? null : styles.eyebrowError]}>
+        {ok ? 'CONFIRMED' : 'ACTION FAILED'}
+      </Text>
       <Text style={styles.title}>{card.title}</Text>
       <Text style={styles.description}>{card.description}</Text>
       {card.url ? (
         <Pressable accessibilityRole="button" accessibilityLabel="Open secure link" style={styles.button} onPress={open}>
+          <View style={styles.lock} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            <View style={styles.lockShackle} />
+            <View style={styles.lockBody} />
+          </View>
           <Text style={styles.buttonText}>Open secure link</Text>
         </Pressable>
       ) : null}
@@ -34,40 +46,86 @@ export function ActionResultCard({ card }: { card: Extract<NexieCard, { type: 'a
 
 const styles = StyleSheet.create({
   card: {
+    position: 'relative',
     borderRadius: radius.lg,
     borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.panel,
     padding: 16,
+    paddingTop: 18,
     gap: 8,
+    overflow: 'hidden',
+    ...cardShadow,
   },
-  ok: {
-    borderColor: 'rgba(52,211,153,0.28)',
-    backgroundColor: 'rgba(52,211,153,0.10)',
+  topRule: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: colors.success,
   },
-  error: {
-    borderColor: 'rgba(251,113,133,0.28)',
-    backgroundColor: 'rgba(251,113,133,0.10)',
+  topRuleError: {
+    backgroundColor: colors.danger,
+  },
+  eyebrow: {
+    color: colors.success,
+    fontFamily: font.mono,
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1.3,
+  },
+  eyebrowError: {
+    color: colors.danger,
   },
   title: {
     color: colors.text,
-    fontSize: 16,
-    fontWeight: '900',
+    fontFamily: font.serif,
+    fontSize: 18,
+    letterSpacing: -0.2,
   },
   description: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans,
     fontSize: 13,
     lineHeight: 20,
   },
   button: {
+    flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: colors.signal,
-    borderRadius: 999,
+    gap: 7,
+    backgroundColor: colors.success,
+    borderRadius: radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 10,
     marginTop: 4,
   },
+  lock: {
+    width: 11,
+    height: 12,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  lockShackle: {
+    width: 7,
+    height: 6,
+    borderColor: colors.onAccent,
+    borderWidth: 1.5,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 3.5,
+    borderTopRightRadius: 3.5,
+    marginBottom: -1,
+  },
+  lockBody: {
+    width: 11,
+    height: 7,
+    borderRadius: 2,
+    backgroundColor: colors.onAccent,
+  },
   buttonText: {
-    color: '#001313',
-    fontWeight: '900',
+    color: colors.onAccent,
+    fontFamily: font.sans700,
     fontSize: 12,
   },
 })

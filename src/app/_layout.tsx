@@ -1,7 +1,23 @@
+import { useEffect } from 'react'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useFonts } from 'expo-font'
+import * as SplashScreen from 'expo-splash-screen'
+import { InstrumentSerif_400Regular, InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument-serif'
+import {
+  HankenGrotesk_400Regular,
+  HankenGrotesk_500Medium,
+  HankenGrotesk_600SemiBold,
+  HankenGrotesk_700Bold,
+  HankenGrotesk_800ExtraBold,
+} from '@expo-google-fonts/hanken-grotesk'
+import {
+  JetBrainsMono_400Regular,
+  JetBrainsMono_500Medium,
+  JetBrainsMono_600SemiBold,
+} from '@expo-google-fonts/jetbrains-mono'
 
 import { AuthProvider } from '@/context/auth'
 import { PushBridge } from '@/components/PushBridge'
@@ -10,12 +26,35 @@ import { initObservability, withObservability } from '@/lib/observability'
 import { colors, radius } from '@/lib/theme'
 
 initObservability()
+// Hold the native splash until the Concierge Dark fonts are ready (avoids a flash of system-font text).
+SplashScreen.preventAutoHideAsync().catch(() => {})
 
 function RootLayout() {
+  // Concierge Dark typography — Instrument Serif (agent voice/titles), Hanken Grotesk (UI),
+  // JetBrains Mono (eyebrows/labels). Loaded at runtime; no native rebuild needed.
+  const [fontsLoaded, fontError] = useFonts({
+    InstrumentSerif_400Regular,
+    InstrumentSerif_400Regular_Italic,
+    HankenGrotesk_400Regular,
+    HankenGrotesk_500Medium,
+    HankenGrotesk_600SemiBold,
+    HankenGrotesk_700Bold,
+    HankenGrotesk_800ExtraBold,
+    JetBrainsMono_400Regular,
+    JetBrainsMono_500Medium,
+    JetBrainsMono_600SemiBold,
+  })
+  const fontsReady = fontsLoaded || !!fontError // never hang on a font failure — fall back to system
+  useEffect(() => {
+    if (fontsReady) SplashScreen.hideAsync().catch(() => {})
+  }, [fontsReady])
+
   // Fail loud at startup: a build missing required config shows a clear screen
   // instead of crashing on the first network/auth call mid-session.
   const missing = getMissingEnv()
   if (missing.length) return <ConfigErrorScreen missing={missing} />
+
+  if (!fontsReady) return null // native splash stays up until fonts resolve
 
   return (
     <AuthProvider>

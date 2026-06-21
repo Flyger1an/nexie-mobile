@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/context/auth'
 import { tapHaptic } from '@/lib/haptics'
 import { archiveThread, fetchThreads, renameThread } from '@/lib/threads-api'
-import { colors, radius } from '@/lib/theme'
+import { colors, font, radius } from '@/lib/theme'
 import type { NexieThreadSummary } from '@/lib/types'
 
 type ThreadHistoryProps = {
@@ -126,7 +126,7 @@ export function ThreadHistory({ visible, onClose, onSelect, onNewChat }: ThreadH
 
         {loading ? (
           <View style={styles.center}>
-            <ActivityIndicator color={colors.signal} />
+            <ActivityIndicator color={colors.accent} />
           </View>
         ) : threads && threads.length === 0 ? (
           <View style={styles.center}>
@@ -165,7 +165,7 @@ export function ThreadHistory({ visible, onClose, onSelect, onNewChat }: ThreadH
                     <Text style={styles.rowTitle} numberOfLines={1}>
                       {item.title}
                     </Text>
-                    <Text style={styles.rowTime}>{relativeTime(item.updatedAt)}</Text>
+                    <Text style={styles.rowTime}>{relativeTime(item.updatedAt).toUpperCase()}</Text>
                   </Pressable>
                   <Pressable onPress={() => startRename(item)} style={styles.rowAction} accessibilityLabel="Rename">
                     <Text style={styles.rowActionText}>✎</Text>
@@ -198,32 +198,33 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 22,
-    fontWeight: '900',
-    letterSpacing: -0.8,
+    fontFamily: font.serif,
+    fontSize: 28,
   },
   close: {
-    color: colors.signal,
+    color: colors.accent,
+    fontFamily: font.sans700,
     fontSize: 15,
-    fontWeight: '900',
   },
   newChat: {
     marginHorizontal: 16,
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 12,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(45,212,191,0.5)',
-    backgroundColor: 'rgba(45,212,191,0.12)',
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
     paddingVertical: 13,
     alignItems: 'center',
   },
   newChatText: {
-    color: colors.signal,
+    color: colors.accent,
+    fontFamily: font.sans700,
     fontSize: 14,
-    fontWeight: '900',
   },
   error: {
     color: colors.danger,
+    fontFamily: font.sans,
     fontSize: 13,
     paddingHorizontal: 20,
     paddingBottom: 6,
@@ -237,72 +238,68 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     color: colors.text,
-    fontSize: 17,
-    fontWeight: '900',
+    fontFamily: font.serif,
+    fontSize: 22,
   },
   emptyBody: {
-    color: colors.muted,
+    color: colors.text2,
+    fontFamily: font.sans,
     fontSize: 14,
     lineHeight: 21,
     textAlign: 'center',
   },
   list: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingBottom: 24,
-    gap: 8,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderSoft,
+    paddingVertical: 14,
   },
   rowMain: {
     flex: 1,
-    gap: 3,
+    gap: 4,
   },
   rowTitle: {
     color: colors.text,
+    fontFamily: font.sans700,
     fontSize: 15,
-    fontWeight: '800',
   },
   rowTime: {
-    color: colors.faint,
-    fontSize: 12,
-    fontWeight: '700',
+    color: colors.text3,
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 1,
   },
   rowAction: {
     width: 38,
     height: 38,
-    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   rowActionText: {
-    color: colors.muted,
+    color: colors.text3,
     fontSize: 15,
-    fontWeight: '900',
   },
   editInput: {
     flex: 1,
     minHeight: 40,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.28)',
+    backgroundColor: colors.panel2,
     paddingHorizontal: 12,
     color: colors.text,
+    fontFamily: font.sans,
     fontSize: 15,
   },
   saveText: {
-    color: colors.signal,
+    color: colors.accent,
+    fontFamily: font.sans700,
     fontSize: 13,
-    fontWeight: '900',
   },
 })
