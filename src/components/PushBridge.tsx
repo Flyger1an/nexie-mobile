@@ -7,7 +7,7 @@ import { captureError } from '@/lib/observability'
 import { isOnboardingComplete } from '@/lib/onboarding'
 import { registerPushTokenForSession } from '@/lib/push-notifications'
 
-type PushData = { type?: string; token?: string }
+type PushData = { type?: string; token?: string; query?: string }
 
 function routeFromResponse(
   router: ReturnType<typeof useRouter>,
@@ -18,6 +18,9 @@ function routeFromResponse(
   // Orders + negotiations both live in the Orders tab; deep-link there.
   if (data?.type === 'order' || data?.type === 'negotiation') {
     router.navigate('/orders')
+  } else if (data?.type === 'saved_search') {
+    // Saved-search alert → open Discover prefiltered to the saved query.
+    router.navigate({ pathname: '/discover', params: { q: data.query ?? '' } })
   }
 }
 

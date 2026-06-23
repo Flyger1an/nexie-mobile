@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from 'expo-router'
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
@@ -14,14 +14,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { DiscoverCard } from '@/components/DiscoverCard'
+import { useAuth } from '@/context/auth'
 import { tapHaptic } from '@/lib/haptics'
 import { catalogCategories, catalogSearchText, fetchCatalog } from '@/lib/discover-api'
 import { getRecentSlugs } from '@/lib/recent'
+import { saveSearch } from '@/lib/saved-searches-api'
 import { colors, font, radius } from '@/lib/theme'
 import type { NexieCatalogPage } from '@/lib/types'
 
 export default function DiscoverScreen() {
   const router = useRouter()
+  const { session } = useAuth()
+  const params = useLocalSearchParams()
   const [pages, setPages] = useState<NexieCatalogPage[]>([])
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
@@ -29,6 +33,33 @@ export default function DiscoverScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
   const [recentSlugs, setRecentSlugs] = useState<string[]>([])
+  const [appliedQ, setAppliedQ] = useState<string | undefined>()
+  const [savedSig, setSavedSig] = useState('')
+
+  // Apply a deep-linked query (?q= from a saved-search alert) once per distinct value. Render-phase
+  // setState is React's recommended alternative to an effect for syncing to a changed param.
+  const seedQ = typeof params.q === 'string' ? params.q : Array.isArray(params.q) ? (params.q[0] ?? '') : ''
+  if (seedQ && seedQ !== appliedQ) {
+    setAppliedQ(seedQ)
+    setQuery(seedQ)
+    setActiveCategory(null)
+  }
+
+  // "Save this search" reflects the CURRENT query+category; saving stamps that signature.
+  const curSig = `${query.trim().toLowerCase()}::${(activeCategory ?? '').toLowerCase()}`
+  const hasSearch = Boolean(query.trim() || activeCategory)
+  const searchSaved = hasSearch && savedSig === curSig
+
+  const onSaveSearch = useCallback(async () => {
+    if (!session || !hasSearch) return
+    tapHaptic()
+    setSavedSig(curSig) // optimistic
+    try {
+      await saveSearch(session, { query: query.trim(), category: activeCategory ?? '' })
+    } catch {
+      setSavedSig('')
+    }
+  }, [session, hasSearch, curSig, query, activeCategory])
 
   // Shared loader for pull-to-refresh + retry (event handlers, not effects).
   const load = useCallback(async (): Promise<void> => {
@@ -166,6 +197,23 @@ export default function DiscoverScreen() {
           style={styles.search}
         />
       </View>
+
+      {session && hasSearch ? (
+        <View style={styles.saveSearchWrap}>
+          <Pressable
+            style={[styles.saveSearchBtn, searchSaved ? styles.saveSearchBtnDone : null]}
+            onPress={onSaveSearch}
+            disabled={searchSaved}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: searchSaved }}
+            accessibilityLabel={searchSaved ? 'Search saved — alerts on' : 'Save this search and get alerts'}
+          >
+            <Text style={[styles.saveSearchText, searchSaved ? styles.saveSearchTextDone : null]}>
+              {searchSaved ? '✓ Saved — we’ll alert you' : '＋ Save this search'}
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
 
       {categories.length > 0 ? (
         <View style={styles.chipsWrap}>
@@ -324,6 +372,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 6,
+  },
+  saveSearchWrap: {
+    paddingHorizontal: 16,
+    paddingBottom: 4,
+    alignItems: 'flex-start',
+  },
+  saveSearchBtn: {
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+  },
+  saveSearchBtnDone: {
+    borderColor: colors.success,
+    backgroundColor: 'rgba(201,168,103,0.14)',
+  },
+  saveSearchText: {
+    color: colors.accent,
+    fontFamily: font.sans700,
+    fontSize: 12.5,
+  },
+  saveSearchTextDone: {
+    color: colors.success,
   },
   search: {
     minHeight: 48,
