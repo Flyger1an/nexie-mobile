@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import { useAuth } from '@/context/auth'
 import { fetchBusinessDetail } from '@/lib/business-api'
+import { fetchSavedSlugs, saveBusiness, unsaveBusiness } from '@/lib/saved-api'
 import { tapHaptic } from '@/lib/haptics'
 import { buttonGlass, cardShadow, colors, font, glass, radius } from '@/lib/theme'
 import type { NexieBusinessDetail } from '@/lib/types'
@@ -23,7 +25,9 @@ const stars = (avg: number): string => {
  */
 export default function BusinessDetailScreen() {
   const router = useRouter()
+  const { session } = useAuth()
   const params = useLocalSearchParams()
+  const slug = first(params.slug)
   const agentJsonUrl = first(params.agentJsonUrl)
   const paramName = first(params.name)
   const paramLocation = first(params.location) || null
@@ -37,6 +41,7 @@ export default function BusinessDetailScreen() {
   // Start loading only when there's something to fetch (avoids a synchronous setState in the effect).
   const [loading, setLoading] = useState(Boolean(agentJsonUrl))
   const [error, setError] = useState('')
+  const [isSaved, setIsSaved] = useState(false)
 
   useEffect(() => {
     if (!agentJsonUrl) return
@@ -58,6 +63,20 @@ export default function BusinessDetailScreen() {
     }
   }, [agentJsonUrl])
 
+  // Reflect whether this business is already saved (best-effort; setState stays in the callback).
+  useEffect(() => {
+    if (!session || !slug) return
+    let active = true
+    fetchSavedSlugs(session)
+      .then((slugs) => {
+        if (active) setIsSaved(slugs.includes(slug))
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [session, slug])
+
   const description = detail?.description || paramDescription
   const rating = detail?.rating ?? null
   const offers = detail?.offers ?? []
@@ -74,6 +93,15 @@ export default function BusinessDetailScreen() {
     router.navigate({ pathname: '/chat', params: { seed } })
   }
 
+  const toggleSaved = () => {
+    if (!session || !slug) return
+    tapHaptic()
+    const next = !isSaved
+    setIsSaved(next) // optimistic
+    const op = next ? saveBusiness(session, slug) : unsaveBusiness(session, slug)
+    op.catch(() => setIsSaved(!next)) // revert on failure
+  }
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.topBar}>
@@ -81,7 +109,20 @@ export default function BusinessDetailScreen() {
           <Text style={styles.backGlyph}>‹</Text>
         </Pressable>
         <Text numberOfLines={1} style={styles.topTitle}>{name}</Text>
-        <View style={styles.backBtn} />
+        {session ? (
+          <Pressable
+            onPress={toggleSaved}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isSaved }}
+            accessibilityLabel={isSaved ? 'Remove from saved' : 'Save business'}
+            style={styles.backBtn}
+          >
+            <Text style={[styles.saveGlyph, isSaved ? styles.saveGlyphOn : null]}>{isSaved ? '♥' : '♡'}</Text>
+          </Pressable>
+        ) : (
+          <View style={styles.backBtn} />
+        )}
       </View>
 
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -215,6 +256,8 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   backGlyph: { color: colors.text, fontSize: 30, lineHeight: 32, marginTop: -2 },
+  saveGlyph: { color: colors.text2, fontSize: 22, lineHeight: 24 },
+  saveGlyphOn: { color: colors.accent },
   topTitle: { flex: 1, color: colors.text2, fontFamily: font.sans600, fontSize: 14, textAlign: 'center' },
   container: { paddingHorizontal: 18, paddingBottom: 40, gap: 14 },
 

@@ -442,6 +442,20 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
+        {/* Saved businesses */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Saved businesses"
+          style={styles.helpRow}
+          onPress={() => {
+            tapHaptic()
+            router.navigate('/saved')
+          }}
+        >
+          <Text style={styles.helpText}>Saved businesses</Text>
+          <Text style={styles.helpChevron}>›</Text>
+        </Pressable>
+
         {/* Help & support */}
         <Pressable
           accessibilityRole="button"
