@@ -9,16 +9,20 @@ const DELETE_URL = `${APP_BASE}/api/account/delete`
 const EXPORT_URL = `${APP_BASE}/api/account/export`
 
 /**
- * Permanently delete the signed-in user's account + all associated data. The server targets the
- * session user only; `confirm: true` is the required intent flag. After this resolves the session
- * is invalid — callers must sign out + route to the entry screen.
+ * Delete the signed-in user's NEXXI BUYER data. The server targets the session user only;
+ * `confirm: true` is the required intent flag. Always sign out + route to the entry screen after.
+ *
+ * Returns `sellerRetained`: when the same login also sells on Nexez, the buyer data is cleared but
+ * the seller account + login are KEPT (deleting the buyer app never destroys a seller's business),
+ * so the UI should message that rather than "your account is gone".
  */
-export async function deleteAccount(session: Session): Promise<void> {
-  await apiRequest<{ ok: boolean }>(DELETE_URL, {
+export async function deleteAccount(session: Session): Promise<{ sellerRetained: boolean }> {
+  const res = await apiRequest<{ ok: boolean; sellerRetained?: boolean }>(DELETE_URL, {
     method: 'POST',
     accessToken: session.access_token,
     body: { confirm: true },
   })
+  return { sellerRetained: Boolean(res.sellerRetained) }
 }
 
 export type AccountExport = {

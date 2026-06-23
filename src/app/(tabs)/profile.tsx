@@ -3,6 +3,7 @@ import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useEffect, useState } from 'react'
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   Share,
@@ -188,9 +189,21 @@ export default function ProfileScreen() {
     setDeleting(true)
     setDeleteError('')
     try {
-      await deleteAccount(session)
-      await signOut()
-      router.replace('/')
+      const { sellerRetained } = await deleteAccount(session)
+      const finish = async () => {
+        await signOut()
+        router.replace('/')
+      }
+      if (sellerRetained) {
+        // Same login also sells on Nexez — buyer data cleared, seller account + login kept.
+        Alert.alert(
+          'Buyer data deleted',
+          'Your Nexxi buyer data was removed. Your Nexez seller account and login are separate and were not affected — manage them at nexez.app.',
+          [{ text: 'OK', onPress: finish }],
+        )
+      } else {
+        await finish()
+      }
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : 'Could not delete your account. Try again or contact support.')
       errorHaptic()
@@ -471,7 +484,7 @@ export default function ProfileScreen() {
         <View style={styles.dangerZone}>
           <Text accessibilityRole="header" style={styles.dangerTitle}>Delete account</Text>
           <Text style={styles.dangerHint}>
-            Permanently deletes your Nexez account and all associated data — chats, preferences, orders, and any seller pages. This can’t be undone.
+            Permanently deletes your Nexxi buyer data — chats, preferences, and order history. This can’t be undone. If you also sell on Nexez, your seller account and login stay separate and are not affected.
           </Text>
           <TextInput
             value={confirmText}
