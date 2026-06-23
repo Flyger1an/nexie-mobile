@@ -99,6 +99,15 @@ export default function OrdersScreen() {
     })
   }
 
+  // Re-order = seed the chat to buy the same thing again (routes through the agent's approval flow).
+  function reorder(order: NexieOrderSummary) {
+    const seller = order.sellerName || (order.slug ? `/${order.slug}` : 'the seller')
+    router.navigate({
+      pathname: '/chat',
+      params: { seed: `Book the ${order.offerName || 'this offer'} from ${seller} again.` },
+    })
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
@@ -144,7 +153,7 @@ export default function OrdersScreen() {
           data={orders}
           keyExtractor={(item) => `${item.kind}:${item.token}`}
           contentContainerStyle={styles.list}
-          renderItem={({ item }) => <OrderCard order={item} onOpen={openOrder} onReview={openReview} />}
+          renderItem={({ item }) => <OrderCard order={item} onOpen={openOrder} onReview={openReview} onReorder={reorder} />}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.signal} />}
         />
       )}

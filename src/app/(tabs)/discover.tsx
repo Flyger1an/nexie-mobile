@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router'
+import { useFocusEffect, useRouter } from 'expo-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { DiscoverCard } from '@/components/DiscoverCard'
 import { tapHaptic } from '@/lib/haptics'
 import { catalogCategories, catalogSearchText, fetchCatalog } from '@/lib/discover-api'
+import { getRecentSlugs } from '@/lib/recent'
 import { colors, font, radius } from '@/lib/theme'
 import type { NexieCatalogPage } from '@/lib/types'
 
@@ -27,6 +28,7 @@ export default function DiscoverScreen() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
+  const [recentSlugs, setRecentSlugs] = useState<string[]>([])
 
   // Shared loader for pull-to-refresh + retry (event handlers, not effects).
   const load = useCallback(async (): Promise<void> => {
@@ -61,7 +63,32 @@ export default function DiscoverScreen() {
     }
   }, [])
 
+  // Recently-viewed refreshes whenever the tab regains focus (it changes as the buyer opens detail pages).
+  useFocusEffect(
+    useCallback(() => {
+      let active = true
+      getRecentSlugs()
+        .then((slugs) => {
+          if (active) setRecentSlugs(slugs)
+        })
+        .catch(() => {})
+      return () => {
+        active = false
+      }
+    }, []),
+  )
+
   const categories = useMemo(() => catalogCategories(pages), [pages])
+
+  // Recently-viewed businesses resolved against the catalog; hidden while searching/filtering.
+  const recentPages = useMemo(() => {
+    if (query.trim() || activeCategory) return []
+    const bySlug = new Map(pages.map((p) => [p.slug, p]))
+    return recentSlugs
+      .map((s) => bySlug.get(s))
+      .filter((p): p is NexieCatalogPage => Boolean(p))
+      .slice(0, 8)
+  }, [recentSlugs, pages, query, activeCategory])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -174,6 +201,33 @@ export default function DiscoverScreen() {
           contentContainerStyle={styles.list}
           keyboardShouldPersistTaps="handled"
           renderItem={({ item }) => <DiscoverCard page={item} onAsk={askNexie} onView={viewPage} />}
+          ListHeaderComponent={
+            recentPages.length ? (
+              <View style={styles.recentWrap}>
+                <Text style={styles.recentEyebrow}>RECENTLY VIEWED</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.recentRow}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  {recentPages.map((p) => (
+                    <Pressable
+                      key={p.slug}
+                      style={styles.recentChip}
+                      onPress={() => viewPage(p)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`View ${p.name}`}
+                    >
+                      <Text style={styles.recentChipText} numberOfLines={1}>
+                        {p.name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null
+          }
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.signal} />}
           ListEmptyComponent={
             <View style={styles.center}>
@@ -321,6 +375,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
     textAlign: 'center',
+  },
+  recentWrap: {
+    marginBottom: 14,
+    gap: 8,
+  },
+  recentEyebrow: {
+    color: colors.accent,
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 1.4,
+  },
+  recentRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingRight: 4,
+  },
+  recentChip: {
+    maxWidth: 180,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderTopColor: colors.sheen,
+    backgroundColor: colors.panel,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  recentChipText: {
+    color: colors.text,
+    fontFamily: font.sans600,
+    fontSize: 13,
   },
   list: {
     paddingHorizontal: 16,

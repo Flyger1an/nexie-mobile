@@ -30,10 +30,12 @@ export function OrderCard({
   order,
   onOpen,
   onReview,
+  onReorder,
 }: {
   order: NexieOrderSummary
   onOpen: (order: NexieOrderSummary) => void
   onReview?: (order: NexieOrderSummary) => void
+  onReorder?: (order: NexieOrderSummary) => void
 }) {
   const amount = formatMoney(order.amountCents, order.currency)
   const status = statusInfo(order.status)
@@ -67,15 +69,30 @@ export function OrderCard({
 
       <View style={styles.footer}>
         <Text style={styles.date}>{date ?? ''}</Text>
-        {reviewable && onReview ? (
-          <Pressable
-            onPress={() => onReview(order)}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={`Leave a review for ${order.offerName || 'this order'}`}
-          >
-            <Text style={styles.link}>Leave a review →</Text>
-          </Pressable>
+        {reviewable ? (
+          <View style={styles.footerActions}>
+            {onReorder ? (
+              <Pressable
+                onPress={() => onReorder(order)}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={`Book ${order.offerName || 'this'} again`}
+              >
+                <Text style={styles.link}>Book again</Text>
+              </Pressable>
+            ) : null}
+            {onReorder && onReview ? <Text style={styles.dot}>·</Text> : null}
+            {onReview ? (
+              <Pressable
+                onPress={() => onReview(order)}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={`Leave a review for ${order.offerName || 'this order'}`}
+              >
+                <Text style={styles.link}>Review</Text>
+              </Pressable>
+            ) : null}
+          </View>
         ) : (
           <Text style={styles.link}>View →</Text>
         )}
@@ -159,6 +176,15 @@ const styles = StyleSheet.create({
   link: {
     color: colors.accent,
     fontFamily: font.sans600,
+    fontSize: 12,
+  },
+  footerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dot: {
+    color: colors.text3,
     fontSize: 12,
   },
 })

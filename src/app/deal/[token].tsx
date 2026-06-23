@@ -69,6 +69,10 @@ export default function DealScreen() {
     tapHaptic()
     router.navigate({ pathname: '/review/[token]', params: { token, offerName, sellerName } })
   }
+  const bookAgain = () => {
+    tapHaptic()
+    router.navigate({ pathname: '/chat', params: { seed: `Book the ${offerName} from ${sellerName} again.` } })
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -146,6 +150,11 @@ export default function DealScreen() {
         {isReviewable(status) ? (
           <Pressable style={styles.ghostBtn} onPress={leaveReview} accessibilityRole="button" accessibilityLabel="Leave a review">
             <Text style={styles.ghostBtnText}>Leave a review</Text>
+          </Pressable>
+        ) : null}
+        {isReviewable(status) ? (
+          <Pressable style={styles.ghostBtn} onPress={bookAgain} accessibilityRole="button" accessibilityLabel="Book again">
+            <Text style={styles.ghostBtnText}>Book again</Text>
           </Pressable>
         ) : null}
         <Pressable style={styles.ghostBtn} onPress={askNexxi} accessibilityRole="button" accessibilityLabel="Ask Nexxi about this deal">

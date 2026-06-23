@@ -1,11 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useAuth } from '@/context/auth'
 import { fetchBusinessDetail } from '@/lib/business-api'
+import { recordRecent } from '@/lib/recent'
 import { fetchSavedSlugs, saveBusiness, unsaveBusiness } from '@/lib/saved-api'
 import { tapHaptic } from '@/lib/haptics'
 import { buttonGlass, cardShadow, colors, font, glass, radius } from '@/lib/theme'
@@ -63,6 +64,11 @@ export default function BusinessDetailScreen() {
     }
   }, [agentJsonUrl])
 
+  // Remember this business in the local recently-viewed list (fire-and-forget; no state).
+  useEffect(() => {
+    if (slug) recordRecent(slug)
+  }, [slug])
+
   // Reflect whether this business is already saved (best-effort; setState stays in the callback).
   useEffect(() => {
     if (!session || !slug) return
@@ -102,6 +108,12 @@ export default function BusinessDetailScreen() {
     op.catch(() => setIsSaved(!next)) // revert on failure
   }
 
+  const shareBusiness = () => {
+    tapHaptic()
+    const link = webUrl || `https://nexez.app/${slug}`
+    Share.share({ message: `Check out ${name} on Nexxi — ${link}`, url: link, title: name }).catch(() => {})
+  }
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.topBar}>
@@ -109,20 +121,23 @@ export default function BusinessDetailScreen() {
           <Text style={styles.backGlyph}>‹</Text>
         </Pressable>
         <Text numberOfLines={1} style={styles.topTitle}>{name}</Text>
-        {session ? (
-          <Pressable
-            onPress={toggleSaved}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityState={{ selected: isSaved }}
-            accessibilityLabel={isSaved ? 'Remove from saved' : 'Save business'}
-            style={styles.backBtn}
-          >
-            <Text style={[styles.saveGlyph, isSaved ? styles.saveGlyphOn : null]}>{isSaved ? '♥' : '♡'}</Text>
+        <View style={styles.topActions}>
+          <Pressable onPress={shareBusiness} hitSlop={12} accessibilityRole="button" accessibilityLabel="Share business" style={styles.iconBtn}>
+            <Text style={styles.shareGlyph}>↗</Text>
           </Pressable>
-        ) : (
-          <View style={styles.backBtn} />
-        )}
+          {session ? (
+            <Pressable
+              onPress={toggleSaved}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSaved }}
+              accessibilityLabel={isSaved ? 'Remove from saved' : 'Save business'}
+              style={styles.iconBtn}
+            >
+              <Text style={[styles.saveGlyph, isSaved ? styles.saveGlyphOn : null]}>{isSaved ? '♥' : '♡'}</Text>
+            </Pressable>
+          ) : null}
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -256,6 +271,9 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   backGlyph: { color: colors.text, fontSize: 30, lineHeight: 32, marginTop: -2 },
+  topActions: { flexDirection: 'row', alignItems: 'center' },
+  iconBtn: { width: 36, height: 40, alignItems: 'center', justifyContent: 'center' },
+  shareGlyph: { color: colors.text2, fontSize: 20, lineHeight: 22 },
   saveGlyph: { color: colors.text2, fontSize: 22, lineHeight: 24 },
   saveGlyphOn: { color: colors.accent },
   topTitle: { flex: 1, color: colors.text2, fontFamily: font.sans600, fontSize: 14, textAlign: 'center' },
