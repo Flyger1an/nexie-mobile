@@ -379,8 +379,8 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 - **Optional P3 backlog:** streaming on the approval path [M·S]; a 2nd *transactable* source (needs a partner API); cross-source ranking tuning.
 
 ### Phase 1 — Trust & make the loop visible (pre-launch bar)
-- **Seller / business detail screen** [M·M] — dependency for reviews/save/share
-- **Ratings & reviews** (display + post-order capture) [B+M·L] — cold-start caveat
+- ✅ **Seller / business detail screen** (mobile `6672ba9`) — native profile from the catalog params + the page's `agent.json` (offers + rating); Concierge Gold; money actions seed the chat (agent-gated). Replaced the web bounce on Discover → View. `lib/business-api.ts` + `app/business/[slug].tsx`. Verified on-device with live data.
+- **Ratings & reviews** — review **DISPLAY** already lands on the detail screen (the platform's `agent.json` carries `rating_summary` + `recent_reviews`). Remaining: **post-order review capture** (prompt after an order → write to the reviews table) [B+M·M] — cold-start caveat.
 - In-app **deal / negotiation inbox** + status timeline [M·M]
 - In-app **help / contact support** [M·S]
 
