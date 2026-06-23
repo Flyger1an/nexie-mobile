@@ -88,6 +88,17 @@ export default function OrdersScreen() {
     WebBrowser.openBrowserAsync(orderPortalUrl(order.token)).catch(() => {})
   }
 
+  function openReview(order: NexieOrderSummary) {
+    router.navigate({
+      pathname: '/review/[token]',
+      params: {
+        token: order.token,
+        offerName: order.offerName ?? '',
+        sellerName: order.sellerName ?? (order.slug ? `/${order.slug}` : ''),
+      },
+    })
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
@@ -133,7 +144,7 @@ export default function OrdersScreen() {
           data={orders}
           keyExtractor={(item) => `${item.kind}:${item.token}`}
           contentContainerStyle={styles.list}
-          renderItem={({ item }) => <OrderCard order={item} onOpen={openOrder} />}
+          renderItem={({ item }) => <OrderCard order={item} onOpen={openOrder} onReview={openReview} />}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.signal} />}
         />
       )}

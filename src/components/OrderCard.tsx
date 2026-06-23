@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { formatMoney, formatShortDate, titleize } from '@/lib/format'
+import { isReviewable } from '@/lib/reviews-api'
 import { cardShadow, colors, font, glass, radius } from '@/lib/theme'
 import type { NexieOrderSummary } from '@/lib/types'
 
@@ -25,10 +26,19 @@ function statusInfo(status: string): { label: string; tone: StatusTone } {
   return { label: s ? titleize(s) : 'Unknown', tone: 'neutral' }
 }
 
-export function OrderCard({ order, onOpen }: { order: NexieOrderSummary; onOpen: (order: NexieOrderSummary) => void }) {
+export function OrderCard({
+  order,
+  onOpen,
+  onReview,
+}: {
+  order: NexieOrderSummary
+  onOpen: (order: NexieOrderSummary) => void
+  onReview?: (order: NexieOrderSummary) => void
+}) {
   const amount = formatMoney(order.amountCents, order.currency)
   const status = statusInfo(order.status)
   const date = formatShortDate(order.createdAt)
+  const reviewable = isReviewable(order.status)
 
   return (
     <Pressable
@@ -57,7 +67,18 @@ export function OrderCard({ order, onOpen }: { order: NexieOrderSummary; onOpen:
 
       <View style={styles.footer}>
         <Text style={styles.date}>{date ?? ''}</Text>
-        <Text style={styles.link}>View →</Text>
+        {reviewable && onReview ? (
+          <Pressable
+            onPress={() => onReview(order)}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={`Leave a review for ${order.offerName || 'this order'}`}
+          >
+            <Text style={styles.link}>Leave a review →</Text>
+          </Pressable>
+        ) : (
+          <Text style={styles.link}>View →</Text>
+        )}
       </View>
     </Pressable>
   )

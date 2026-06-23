@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { formatMoney, formatShortDate, titleize } from '@/lib/format'
 import { tapHaptic } from '@/lib/haptics'
 import { orderPortalUrl } from '@/lib/orders-api'
+import { isReviewable } from '@/lib/reviews-api'
 import { buttonGlass, cardShadow, colors, font, glass, radius } from '@/lib/theme'
 
 const first = (v: string | string[] | undefined): string => (Array.isArray(v) ? (v[0] ?? '') : (v ?? ''))
@@ -63,6 +64,10 @@ export default function DealScreen() {
       pathname: '/chat',
       params: { seed: `What's the status of my ${offerName} deal with ${sellerName}, and what should I do next?` },
     })
+  }
+  const leaveReview = () => {
+    tapHaptic()
+    router.navigate({ pathname: '/review/[token]', params: { token, offerName, sellerName } })
   }
 
   return (
@@ -138,6 +143,11 @@ export default function DealScreen() {
         >
           <Text style={buttonGlass.label}>{fundNeeded ? 'Review & fund' : 'Open full deal & messages'}</Text>
         </Pressable>
+        {isReviewable(status) ? (
+          <Pressable style={styles.ghostBtn} onPress={leaveReview} accessibilityRole="button" accessibilityLabel="Leave a review">
+            <Text style={styles.ghostBtnText}>Leave a review</Text>
+          </Pressable>
+        ) : null}
         <Pressable style={styles.ghostBtn} onPress={askNexxi} accessibilityRole="button" accessibilityLabel="Ask Nexxi about this deal">
           <Text style={styles.ghostBtnText}>Ask Nexxi about this</Text>
         </Pressable>
