@@ -385,7 +385,8 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 - ✅ **In-app help / support** (mobile `25096d6`) — `app/help.tsx`: FAQ + Email support + legal links, reached from Profile. (Contact defaults to support@nexez.app — owner to confirm the mailbox.)
 
 ### Phase 2 — Retention primitives (cheap wins)
-- **Save / watch / favorites** [B+M·S–M] · **Re-order** [M·S] · **Share an offer/result** [M·S] · **Recently viewed** [M·S]
+- ✅ **Save / favorites** (nexez `d2c5740`, mobile `82ed11d`) — `saved_pages` buyer-facet table + `/api/agents/nexie/saved` (GET/POST/DELETE, RLS owner-scoped, in the deletion facet); heart toggle on the business detail + a Saved screen from Profile (slugs resolved against the catalog). On-device authed verify pending (needs login).
+- **Re-order** [M·S] · **Share an offer/result** [M·S] · **Recently viewed** [M·S]
 
 ### Phase 3 — Agent moat (the differentiator)
 - **Saved searches + alerts** [B+M·M] · **Proactive / async background tasks** [B+M·L] · **Attachments to the agent** [B+M·M]
