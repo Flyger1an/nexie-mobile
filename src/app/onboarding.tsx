@@ -7,7 +7,7 @@ import { useAuth } from '@/context/auth'
 import { tapHaptic } from '@/lib/haptics'
 import { markOnboardingComplete } from '@/lib/onboarding'
 import { registerPushTokenForSession } from '@/lib/push-notifications'
-import { colors, font, radius } from '@/lib/theme'
+import { buttonGlass, colors, font, radius } from '@/lib/theme'
 
 type PanelIcon = 'dot' | 'check' | 'bell'
 
@@ -137,10 +137,10 @@ export default function OnboardingScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={isLast ? 'Get started' : 'Next'}
-            style={styles.primary}
+            style={[buttonGlass.base, styles.primary]}
             onPress={next}
           >
-            <Text style={styles.primaryText}>{isLast ? 'Get started' : 'Next'}</Text>
+            <Text style={buttonGlass.label}>{isLast ? 'Get started' : 'Next'}</Text>
           </Pressable>
         </View>
       </View>
@@ -308,15 +308,5 @@ const styles = StyleSheet.create({
   },
   primary: {
     flex: 1,
-    minHeight: 54,
-    borderRadius: radius.md,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryText: {
-    color: colors.accentInk,
-    fontFamily: font.sans700,
-    fontSize: 16,
   },
 })

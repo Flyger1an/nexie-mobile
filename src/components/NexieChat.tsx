@@ -18,7 +18,7 @@ import { fetchThreadMessages } from '@/lib/threads-api'
 import { sendNexieTurn, streamNexieTurn } from '@/lib/nexie-api'
 import { errorHaptic, successHaptic, tapHaptic } from '@/lib/haptics'
 import { createIncrementalSpeaker, speak, stopSpeaking } from '@/lib/speech'
-import { colors, font, radius } from '@/lib/theme'
+import { buttonGlass, colors, font, radius } from '@/lib/theme'
 import type { NexieCard, NexieMessage, NexieMode } from '@/lib/types'
 
 import { ActionResultCard } from './ActionResultCard'
@@ -344,10 +344,10 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
             accessibilityRole="button"
             accessibilityLabel="Send message"
             accessibilityState={{ disabled: busy || !input.trim() }}
-            style={[styles.send, busy || !input.trim() ? styles.sendDisabled : null]}
+            style={[buttonGlass.base, styles.send, busy || !input.trim() ? buttonGlass.disabled : null]}
             onPress={() => submit()}
           >
-            <Text style={styles.sendText}>Send</Text>
+            <Text style={[buttonGlass.label, busy || !input.trim() ? buttonGlass.disabledLabel : null]}>Send</Text>
           </Pressable>
         </View>
         <Text style={styles.disclaimer}>Nexxi can make mistakes — and always asks before submitting offers or opening checkout.</Text>
@@ -587,6 +587,7 @@ const styles = StyleSheet.create({
     gap: 9,
     borderWidth: 1,
     borderColor: colors.border,
+    borderTopColor: colors.sheen, // glass-sheen inset highlight
     borderRadius: 16,
     backgroundColor: colors.panel,
     padding: 8,
@@ -602,21 +603,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 13,
   },
+  // Glass + persimmon-ring Send (container/ring from buttonGlass.base; this just pins the
+  // composer-row height so it sits flush with the 48px input + mic).
   send: {
     height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 18,
-    backgroundColor: colors.text,
-  },
-  sendDisabled: {
-    opacity: 0.4,
-  },
-  sendText: {
-    color: colors.onAccent,
-    fontFamily: font.sans700,
-    fontSize: 13.5,
+    minHeight: 48,
   },
   disclaimer: {
     color: colors.text3,

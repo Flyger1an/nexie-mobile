@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { decisionHaptic } from '@/lib/haptics'
-import { cardShadow, colors, font, radius } from '@/lib/theme'
+import { buttonGlass, cardShadow, colors, font, radius } from '@/lib/theme'
 import type { NexieCard } from '@/lib/types'
 
 type ApprovalCardProps = {
@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.accent,
+    borderTopColor: colors.sheen,
     backgroundColor: colors.accentSoft,
     padding: 16,
     gap: 10,
@@ -149,20 +150,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   approve: {
+    ...buttonGlass.base,
+    ...buttonGlass.confirm,
     flex: 1,
-    alignItems: 'center',
     borderRadius: radius.md,
-    backgroundColor: colors.success,
-    paddingVertical: 13,
     ...cardShadow,
   },
   approveText: {
-    color: colors.onAccent,
+    ...buttonGlass.label,
+    ...buttonGlass.confirmLabel,
     fontFamily: font.sans700,
     fontSize: 14,
   },
   approveCheck: {
-    color: colors.onAccent,
+    color: colors.confirmInk,
     fontFamily: font.sans700,
   },
   decline: {

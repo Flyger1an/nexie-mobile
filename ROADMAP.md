@@ -2,7 +2,7 @@
 
 > **Status:** Foundational scaffold complete (auth, single-thread chat, voice-in, search/approval/action cards, owner-scoped backend). This document is the source of truth for everything between here and a publicly launched app on the App Store and Google Play.
 >
-> **Last updated:** 2026-06-18
+> **Last updated:** 2026-06-20 — P0–P5 shipped; UI on the **Concierge Gold** design system (gloss-black / glass). See §10 for the consolidated forward plan.
 > **Owner:** @realestglad
 > **Companion repos:** `nexie-mobile` (this app) · `nexez` (backend: `/api/agents/nexie`, checkout, negotiations, order portal)
 
@@ -361,3 +361,45 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 ```
 
 **Immediate next step (P0, item 1):** migrate Supabase session storage to `expo-secure-store`, then stand up `expo-notifications`. These two convert "demo" into "an app you can safely hand a stranger."
+
+---
+
+## 10. Forward Plan — feature depth → launch (consolidated 2026-06-20)
+
+> **P0–P5 above are SHIPPED.** This is the prioritized forward plan: prior-phase **carryover**, then **feature depth (Phase 1–5)**, with **App Store / launch work intentionally LAST**.
+> Legend: 👤 owner-only · 🔁 needs an EAS native rebuild · [M]obile / [B]ackend · S/M/L effort.
+
+### Carryover — close out (small / owner-gated)
+- 👤 🔁 **Activate Apple + Google sign-in** — OAuth consoles + Supabase providers + 4 env vars, then a rebuild links the native modules (code pre-built + dormant).
+- 🔁 **File-based data export** (`expo-sharing` + `expo-file-system`) — fixes the share-sheet failure + large-account size limit; bundle into that rebuild. [B-light + M · S]
+- 🔁 **Glassmorphism blur** (`expo-blur` BlurView) — Concierge Gold "real glass"; bundle into the same rebuild (translucent approximation ships OTA now). [M · S]
+- 👤 **Provision Upstash/KV Redis env** in Vercel — global rate limits + fail-closed active.
+- 👤 **Verify Supabase "Confirm email" is ON**.
+- 👤 **Refund the $1 money-loop test order** via Finance.
+- **Optional P3 backlog:** streaming on the approval path [M·S]; a 2nd *transactable* source (needs a partner API); cross-source ranking tuning.
+
+### Phase 1 — Trust & make the loop visible (pre-launch bar)
+- **Seller / business detail screen** [M·M] — dependency for reviews/save/share
+- **Ratings & reviews** (display + post-order capture) [B+M·L] — cold-start caveat
+- In-app **deal / negotiation inbox** + status timeline [M·M]
+- In-app **help / contact support** [M·S]
+
+### Phase 2 — Retention primitives (cheap wins)
+- **Save / watch / favorites** [B+M·S–M] · **Re-order** [M·S] · **Share an offer/result** [M·S] · **Recently viewed** [M·S]
+
+### Phase 3 — Agent moat (the differentiator)
+- **Saved searches + alerts** [B+M·M] · **Proactive / async background tasks** [B+M·L] · **Attachments to the agent** [B+M·M]
+
+### Phase 4 — Money clarity
+- **Receipts / invoices** [B+M·M] · **Spend-to-date vs budget** [M·S–M] · **Refund status timeline** [B+M·S–M]
+
+### Phase 5 — Discovery depth & growth
+- **Filters & sort** [M·S–M] · **Map view + personalized/trending home** [B+M·M] (absorbs the deferred P2 ranking item) · **Notifications center / activity feed** [M·M] · **Referral**, **address management**, finer **notification prefs** [each S]
+
+### Phase 6 (LAST) — Launch / App Store
+- 👤 **Data-safety forms** (App Store Connect + Play; `docs/DATA_SAFETY.md` drafted), **privacy URL** in both listings, **age-rating** questionnaire
+- **Store assets** — icon, screenshots, listing copy [M/design]
+- **Build → submit** pipeline (EAS submit) + release channels
+- **Launch analytics / funnel**
+- 👤 minor **ToS mobile-clause** polish
+- **Pre-launch E2E:** fresh-install signup → trial → first order

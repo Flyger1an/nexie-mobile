@@ -251,12 +251,14 @@ const styles = StyleSheet.create({
     width: 78,
     height: 78,
     borderRadius: radius.pill,
-    backgroundColor: colors.accent,
+    backgroundColor: 'rgba(255,106,51,0.12)',
+    borderWidth: 1.5,
+    borderColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   orbIcon: {
-    color: colors.accentInk,
+    color: colors.text,
     fontSize: 26,
   },
   transcriptWrap: {

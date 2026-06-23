@@ -17,7 +17,7 @@ import * as AppleAuthentication from 'expo-apple-authentication'
 import { useAuth } from '@/context/auth'
 import { isOnboardingComplete } from '@/lib/onboarding'
 import { isAppleSignInSupported, isGoogleSignInConfigured, signInWithApple, signInWithGoogle } from '@/lib/social-auth'
-import { colors, font, radius } from '@/lib/theme'
+import { buttonGlass, colors, font, glass, radius } from '@/lib/theme'
 
 export default function WelcomeScreen() {
   const router = useRouter()
@@ -210,9 +210,13 @@ export default function WelcomeScreen() {
             accessibilityLabel={primaryLabel}
             accessibilityState={{ disabled: busy || !canSubmit, busy }}
             onPress={submit}
-            style={[styles.primary, busy || !canSubmit ? styles.disabled : null]}
+            style={[buttonGlass.base, busy || !canSubmit ? buttonGlass.disabled : null]}
           >
-            {busy ? <ActivityIndicator color={colors.onAccent} /> : <Text style={styles.primaryText}>{primaryLabel}</Text>}
+            {busy ? (
+              <ActivityIndicator color={colors.accent} />
+            ) : (
+              <Text style={[buttonGlass.label, busy || !canSubmit ? buttonGlass.disabledLabel : null]}>{primaryLabel}</Text>
+            )}
           </Pressable>
 
           {mode === 'signin' ? (
@@ -359,27 +363,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
   },
   input: {
+    ...glass,
     minHeight: 54,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.panel,
     paddingHorizontal: 14,
     color: colors.text,
     fontFamily: font.sans,
-    fontSize: 15,
-  },
-  primary: {
-    minHeight: 54,
-    borderRadius: radius.md,
-    backgroundColor: colors.text,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  primaryText: {
-    color: colors.onAccent,
-    fontFamily: font.sans700,
     fontSize: 15,
   },
   disabled: {

@@ -18,7 +18,7 @@ import { useAuth } from '@/context/auth'
 import { errorHaptic, tapHaptic, successHaptic } from '@/lib/haptics'
 import { deleteAccount, exportAccount } from '@/lib/account-api'
 import { fetchPreferences, updatePreferences } from '@/lib/preferences-api'
-import { cardShadow, colors, font, radius } from '@/lib/theme'
+import { buttonGlass, cardShadow, colors, font, glass, radius } from '@/lib/theme'
 import type { NexieAvailableSource, NexiePreferences, NexieTiming } from '@/lib/types'
 
 const TIMING_OPTIONS: { label: string; value: NexieTiming | null }[] = [
@@ -400,14 +400,14 @@ export default function ProfileScreen() {
               accessibilityRole="button"
               accessibilityLabel="Save preferences"
               accessibilityState={{ disabled: saving, busy: saving }}
-              style={[styles.save, saving ? styles.disabled : null]}
+              style={[buttonGlass.base, styles.save, saving ? buttonGlass.disabled : null]}
               onPress={onSave}
               disabled={saving}
             >
               {saving ? (
-                <ActivityIndicator color={colors.onAccent} />
+                <ActivityIndicator color={colors.accent} />
               ) : (
-                <Text style={styles.saveText}>{saved ? 'Saved ✓' : 'Save preferences'}</Text>
+                <Text style={[buttonGlass.label, styles.saveText]}>{saved ? 'Saved ✓' : 'Save preferences'}</Text>
               )}
             </Pressable>
           </>
@@ -527,10 +527,8 @@ const styles = StyleSheet.create({
     lineHeight: 23,
   },
   card: {
+    ...glass,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.panel,
     padding: 16,
     gap: 6,
     ...cardShadow,
@@ -718,17 +716,10 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   save: {
-    minHeight: 52,
-    borderRadius: radius.lg,
-    backgroundColor: colors.text,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginTop: 4,
   },
   saveText: {
-    color: colors.onAccent,
-    fontFamily: font.sans700,
-    fontSize: 15,
+    // Color + font come from buttonGlass.label (cream label on a persimmon-ring glass button).
   },
   disabled: {
     opacity: 0.5,

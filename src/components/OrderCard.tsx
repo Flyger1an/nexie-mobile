@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { colors, font, radius } from '@/lib/theme'
+import { cardShadow, colors, font, glass, radius } from '@/lib/theme'
 import type { NexieOrderSummary } from '@/lib/types'
 
 type StatusTone = 'success' | 'warn' | 'danger' | 'neutral'
@@ -88,12 +88,11 @@ export function OrderCard({ order, onOpen }: { order: NexieOrderSummary; onOpen:
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.panel,
+    ...glass,
     borderRadius: radius.lg,
     padding: 16,
     gap: 10,
+    ...cardShadow,
   },
   pressed: {
     opacity: 0.7,

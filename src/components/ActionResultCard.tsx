@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { cardShadow, colors, font, radius } from '@/lib/theme'
+import { buttonGlass, cardShadow, colors, font, radius } from '@/lib/theme'
 import type { NexieCard } from '@/lib/types'
 
 export function ActionResultCard({ card }: { card: Extract<NexieCard, { type: 'action_result' }> }) {
@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
+    borderTopColor: colors.sheen,
     backgroundColor: colors.panel,
     padding: 16,
     paddingTop: 18,
@@ -91,14 +92,10 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    ...buttonGlass.base,
+    ...buttonGlass.confirm,
     alignSelf: 'flex-start',
-    gap: 7,
-    backgroundColor: colors.success,
     borderRadius: radius.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
     marginTop: 4,
   },
   lock: {
@@ -110,7 +107,7 @@ const styles = StyleSheet.create({
   lockShackle: {
     width: 7,
     height: 6,
-    borderColor: colors.onAccent,
+    borderColor: colors.confirmInk,
     borderWidth: 1.5,
     borderBottomWidth: 0,
     borderTopLeftRadius: 3.5,
@@ -121,10 +118,11 @@ const styles = StyleSheet.create({
     width: 11,
     height: 7,
     borderRadius: 2,
-    backgroundColor: colors.onAccent,
+    backgroundColor: colors.confirmInk,
   },
   buttonText: {
-    color: colors.onAccent,
+    ...buttonGlass.label,
+    ...buttonGlass.confirmLabel,
     fontFamily: font.sans700,
     fontSize: 12,
   },

@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { cardShadow, colors, font, radius } from '@/lib/theme'
+import { buttonGlass, cardShadow, colors, font, radius } from '@/lib/theme'
 import type { NexieCatalogPage } from '@/lib/types'
 
 type DiscoverCardProps = {
@@ -51,12 +51,12 @@ function DiscoverCardBase({ page, onAsk, onView }: DiscoverCardProps) {
 
       <View style={styles.actions}>
         <Pressable
-          style={styles.ask}
+          style={[buttonGlass.base, styles.ask]}
           onPress={() => onAsk(page)}
           accessibilityRole="button"
           accessibilityLabel={`Ask Nexxi about ${page.name}`}
         >
-          <Text style={styles.askText}>Ask Nexxi</Text>
+          <Text style={[buttonGlass.label, styles.askText]}>Ask Nexxi</Text>
         </Pressable>
         <Pressable
           style={styles.view}
@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
+    borderTopColor: colors.sheen,
     backgroundColor: colors.panel,
     padding: 16,
     gap: 8,
@@ -158,14 +159,8 @@ const styles = StyleSheet.create({
   },
   ask: {
     flex: 1,
-    borderRadius: radius.md,
-    backgroundColor: colors.text,
-    alignItems: 'center',
-    paddingVertical: 12,
   },
   askText: {
-    color: colors.onAccent,
-    fontFamily: font.sans700,
     fontSize: 14,
   },
   view: {

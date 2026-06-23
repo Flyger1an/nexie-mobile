@@ -5,14 +5,14 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
-import { InstrumentSerif_400Regular, InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument-serif'
+import { Newsreader_400Regular, Newsreader_500Medium, Newsreader_400Regular_Italic } from '@expo-google-fonts/newsreader'
 import {
-  HankenGrotesk_400Regular,
-  HankenGrotesk_500Medium,
-  HankenGrotesk_600SemiBold,
-  HankenGrotesk_700Bold,
-  HankenGrotesk_800ExtraBold,
-} from '@expo-google-fonts/hanken-grotesk'
+  SchibstedGrotesk_400Regular,
+  SchibstedGrotesk_500Medium,
+  SchibstedGrotesk_600SemiBold,
+  SchibstedGrotesk_700Bold,
+  SchibstedGrotesk_800ExtraBold,
+} from '@expo-google-fonts/schibsted-grotesk'
 import {
   JetBrainsMono_400Regular,
   JetBrainsMono_500Medium,
@@ -26,20 +26,21 @@ import { initObservability, withObservability } from '@/lib/observability'
 import { colors, radius } from '@/lib/theme'
 
 initObservability()
-// Hold the native splash until the Concierge Dark fonts are ready (avoids a flash of system-font text).
+// Hold the native splash until the Concierge Gold fonts are ready (avoids a flash of system-font text).
 SplashScreen.preventAutoHideAsync().catch(() => {})
 
 function RootLayout() {
-  // Concierge Dark typography — Instrument Serif (agent voice/titles), Hanken Grotesk (UI),
+  // Concierge Gold typography — Newsreader (agent voice/titles/prices), Schibsted Grotesk (UI),
   // JetBrains Mono (eyebrows/labels). Loaded at runtime; no native rebuild needed.
   const [fontsLoaded, fontError] = useFonts({
-    InstrumentSerif_400Regular,
-    InstrumentSerif_400Regular_Italic,
-    HankenGrotesk_400Regular,
-    HankenGrotesk_500Medium,
-    HankenGrotesk_600SemiBold,
-    HankenGrotesk_700Bold,
-    HankenGrotesk_800ExtraBold,
+    Newsreader_400Regular,
+    Newsreader_500Medium,
+    Newsreader_400Regular_Italic,
+    SchibstedGrotesk_400Regular,
+    SchibstedGrotesk_500Medium,
+    SchibstedGrotesk_600SemiBold,
+    SchibstedGrotesk_700Bold,
+    SchibstedGrotesk_800ExtraBold,
     JetBrainsMono_400Regular,
     JetBrainsMono_500Medium,
     JetBrainsMono_600SemiBold,
