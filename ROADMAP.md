@@ -381,7 +381,7 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 ### Phase 1 — Trust & make the loop visible (pre-launch bar)
 - ✅ **Seller / business detail screen** (mobile `6672ba9`) — native profile from the catalog params + the page's `agent.json` (offers + rating); Concierge Gold; money actions seed the chat (agent-gated). Replaced the web bounce on Discover → View. `lib/business-api.ts` + `app/business/[slug].tsx`. Verified on-device with live data.
 - **Ratings & reviews** — review **DISPLAY** already lands on the detail screen (the platform's `agent.json` carries `rating_summary` + `recent_reviews`). Remaining: **post-order review capture** (prompt after an order → write to the reviews table) [B+M·M] — cold-start caveat.
-- In-app **deal / negotiation inbox** + status timeline [M·M]
+- ✅ **Deal / negotiation timeline** (mobile `5de7348`) — tapping a negotiation in Orders opens a native deal screen (`app/deal/[token].tsx`) with a status stepper (Requested → Agreement proposed → Funded → Complete; gold=done, persimmon=current) + a dynamic CTA ('Review & fund' / 'Open full deal' → portal) + 'Ask Nexxi'. Shared `lib/format.ts`. (The Orders list is the inbox; this adds the per-deal timeline.) Verified on-device.
 - In-app **help / contact support** [M·S]
 
 ### Phase 2 — Retention primitives (cheap wins)
