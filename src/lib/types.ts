@@ -117,6 +117,44 @@ export type NexieCatalogPage = {
   offerCount: number
 }
 
+// A buyer review surfaced on a business detail screen (from the page's agent.json rating_summary).
+export type NexieReview = {
+  rating: number
+  title: string | null
+  body: string | null
+  createdAt: string | null
+}
+
+// Aggregate rating for a business (null when there are no reviews yet).
+export type NexieRatingSummary = {
+  average: number
+  count: number
+  verifiedCount: number
+  recent: NexieReview[]
+} | null
+
+// One bookable/negotiable offer on a business detail screen.
+export type NexieBusinessOffer = {
+  key: string
+  name: string
+  description: string | null
+  price: string | null
+  acceptsNegotiation: boolean
+}
+
+// Full public detail for one business, normalized from its /<slug>/agent.json payload.
+export type NexieBusinessDetail = {
+  name: string
+  slug: string
+  description: string
+  location: string | null
+  currency: string
+  url: string
+  contactEmail: string | null
+  rating: NexieRatingSummary
+  offers: NexieBusinessOffer[]
+}
+
 // A past conversation in the buyer's thread history (newest first).
 export type NexieThreadSummary = {
   id: string

@@ -1,5 +1,4 @@
 import { useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
@@ -95,9 +94,29 @@ export default function DiscoverScreen() {
     [router],
   )
 
-  const viewPage = useCallback((page: NexieCatalogPage) => {
-    if (page.url) WebBrowser.openBrowserAsync(page.url).catch(() => {})
-  }, [])
+  // Open the native business detail screen (replaces bouncing to the web page). Pass the catalog
+  // fields as params so the header renders instantly while offers + reviews load from agent.json.
+  const viewPage = useCallback(
+    (page: NexieCatalogPage) => {
+      tapHaptic()
+      router.navigate({
+        pathname: '/business/[slug]',
+        params: {
+          slug: page.slug,
+          name: page.name,
+          location: page.location ?? '',
+          description: page.description ?? '',
+          readiness: String(page.readiness),
+          certified: page.certified ? '1' : '',
+          offerCount: String(page.offerCount),
+          currency: page.currency,
+          url: page.url,
+          agentJsonUrl: page.agentJsonUrl,
+        },
+      })
+    },
+    [router],
+  )
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
