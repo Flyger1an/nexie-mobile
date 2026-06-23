@@ -384,9 +384,11 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 - ✅ **Deal / negotiation timeline** (mobile `5de7348`) — tapping a negotiation in Orders opens a native deal screen (`app/deal/[token].tsx`) with a status stepper (Requested → Agreement proposed → Funded → Complete; gold=done, persimmon=current) + a dynamic CTA ('Review & fund' / 'Open full deal' → portal) + 'Ask Nexxi'. Shared `lib/format.ts`. (The Orders list is the inbox; this adds the per-deal timeline.) Verified on-device.
 - ✅ **In-app help / support** (mobile `25096d6`) — `app/help.tsx`: FAQ + Email support + legal links, reached from Profile. (Contact defaults to support@nexez.app — owner to confirm the mailbox.)
 
-### Phase 2 — Retention primitives (cheap wins)
-- ✅ **Save / favorites** (nexez `d2c5740`, mobile `82ed11d`) — `saved_pages` buyer-facet table + `/api/agents/nexie/saved` (GET/POST/DELETE, RLS owner-scoped, in the deletion facet); heart toggle on the business detail + a Saved screen from Profile (slugs resolved against the catalog). On-device authed verify pending (needs login).
-- **Re-order** [M·S] · **Share an offer/result** [M·S] · **Recently viewed** [M·S]
+### Phase 2 — Retention primitives (cheap wins) — ✅ COMPLETE
+- ✅ **Save / favorites** (nexez `d2c5740`, mobile `82ed11d`) — `saved_pages` buyer-facet table + `/api/agents/nexie/saved` (GET/POST/DELETE, RLS owner-scoped, in the deletion facet); heart toggle on the business detail + a Saved screen from Profile (slugs resolved against the catalog).
+- ✅ **Recently viewed** (mobile `96994da`) — `lib/recent.ts` (SecureStore) recorded on detail view; a horizontal strip on Discover (catalog-resolved, focus-refreshed, hidden while searching).
+- ✅ **Share** (mobile `96994da`) — share button on the business-detail top bar → OS share sheet.
+- ✅ **Re-order** (mobile `96994da`) — "Book again" on reviewable OrderCards + completed deals; seeds the chat (agent-gated).
 
 ### Phase 3 — Agent moat (the differentiator)
 - **Saved searches + alerts** [B+M·M] · **Proactive / async background tasks** [B+M·L] · **Attachments to the agent** [B+M·M]
