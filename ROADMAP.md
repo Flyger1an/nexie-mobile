@@ -400,10 +400,7 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 ### Phase 3 — Agent moat (the differentiator) ← NEXT
 > The "buyer AGENT" features users would actually market. Build order below is by dependency: saved-searches infra underpins async tasks.
 
-- **3a. Saved searches + alerts** [B+M·M] — *start here; builds on the Save infra.*
-  - Backend: `saved_searches` buyer-facet table (user_id, query, filters, last_seen, created_at; RLS owner-scoped; add to deletion facet) + `/api/agents/nexie/saved-searches` (GET/POST/DELETE) + a **cron matcher** that diffs new/changed catalog entries against each saved search → `sendPushToUser` (reuses the existing push infra).
-  - Mobile: "Save this search" from Discover (current query + category) → a saved-searches list (Profile/screen) to manage/delete; alerts arrive as push → deep-link to Discover prefiltered.
-  - Caveat: alerts only fire as the catalog churns.
+- ✅ **3a. Saved searches + alerts** (nexez `c430c0d`, mobile `8de27f5`) — `saved_searches` buyer-facet table (RLS owner-scoped, migration LIVE, in the deletion facet) + `/api/agents/nexie/saved-searches` (GET/POST/DELETE, 6 tests) + `/api/cron/saved-search-alerts` (every 6h, CRON_SECRET-protected, diffs new pages_public → `sendPushToUser`). Mobile: "Save this search" on Discover, a Saved-searches section on the Saved screen, push deep-links to `/discover?q=`. Endpoints live-verified (401). On-device authed UI verify pending (login + healthy emulator). Alerts fire as the catalog churns.
 - **3b. Proactive / async background tasks** [B+M·L] — *the headline; depends on 3a + a server-invokable agent loop.*
   - A standing task ("keep looking for a plumber under $300 and ping me"). Backend: `agent_tasks` table + a cron runner that invokes the agent loop per active task (no live session) + push on result; idempotent + capped. Mobile: create/track tasks from chat or a Tasks surface.
   - Risk: the agent loop must run server-side without a buyer session; reuse the buyer-identity-from-session seam carefully (no money without approval — results are notifications, never auto-purchases).
