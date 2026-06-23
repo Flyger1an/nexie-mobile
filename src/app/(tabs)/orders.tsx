@@ -66,8 +66,26 @@ export default function OrdersScreen() {
     setLoading(false)
   }, [load])
 
-  function openOrder(token: string) {
-    WebBrowser.openBrowserAsync(orderPortalUrl(token)).catch(() => {})
+  function openOrder(order: NexieOrderSummary) {
+    // Negotiations → the native deal screen (status timeline + agent-gated actions). Direct-checkout
+    // orders → the web portal (refund/report recourse lives there).
+    if (order.kind === 'negotiation') {
+      router.navigate({
+        pathname: '/deal/[token]',
+        params: {
+          token: order.token,
+          status: order.status,
+          offerName: order.offerName ?? '',
+          amountCents: order.amountCents == null ? '' : String(order.amountCents),
+          currency: order.currency,
+          sellerName: order.sellerName ?? '',
+          slug: order.slug ?? '',
+          createdAt: order.createdAt,
+        },
+      })
+      return
+    }
+    WebBrowser.openBrowserAsync(orderPortalUrl(order.token)).catch(() => {})
   }
 
   return (

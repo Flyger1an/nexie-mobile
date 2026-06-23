@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
+import { formatMoney, formatShortDate, titleize } from '@/lib/format'
 import { cardShadow, colors, font, glass, radius } from '@/lib/theme'
 import type { NexieOrderSummary } from '@/lib/types'
 
@@ -24,41 +25,17 @@ function statusInfo(status: string): { label: string; tone: StatusTone } {
   return { label: s ? titleize(s) : 'Unknown', tone: 'neutral' }
 }
 
-function titleize(s: string): string {
-  const t = s.replace(/_/g, ' ')
-  return t.charAt(0).toUpperCase() + t.slice(1)
-}
-
-function formatAmount(amountCents: number | null, currency: string): string | null {
-  if (amountCents == null) return null
-  const code = (currency || 'usd').toUpperCase()
-  try {
-    const fmt = new Intl.NumberFormat('en', { style: 'currency', currency: code })
-    const digits = fmt.resolvedOptions().maximumFractionDigits ?? 2
-    return fmt.format(amountCents / Math.pow(10, digits))
-  } catch {
-    return `${code} ${(amountCents / 100).toFixed(2)}`
-  }
-}
-
-function formatDate(iso: string): string | null {
-  if (!iso) return null
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return null
-  return d.toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-export function OrderCard({ order, onOpen }: { order: NexieOrderSummary; onOpen: (token: string) => void }) {
-  const amount = formatAmount(order.amountCents, order.currency)
+export function OrderCard({ order, onOpen }: { order: NexieOrderSummary; onOpen: (order: NexieOrderSummary) => void }) {
+  const amount = formatMoney(order.amountCents, order.currency)
   const status = statusInfo(order.status)
-  const date = formatDate(order.createdAt)
+  const date = formatShortDate(order.createdAt)
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${order.kind === 'negotiation' ? 'Negotiation' : 'Order'}: ${order.offerName || order.slug || 'order'}, ${status.label}. Tap to view.`}
       style={({ pressed }) => [styles.card, pressed ? styles.pressed : null]}
-      onPress={() => onOpen(order.token)}
+      onPress={() => onOpen(order)}
     >
       <View style={styles.topRow}>
         <Text style={styles.kind}>{order.kind === 'negotiation' ? 'Negotiation' : 'Order'}</Text>
