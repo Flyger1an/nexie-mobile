@@ -2,7 +2,7 @@
 
 > **Status:** Foundational scaffold complete (auth, single-thread chat, voice-in, search/approval/action cards, owner-scoped backend). This document is the source of truth for everything between here and a publicly launched app on the App Store and Google Play.
 >
-> **Last updated:** 2026-06-20 — P0–P5 shipped; UI on the **Concierge Gold** design system (gloss-black / glass). See §10 for the consolidated forward plan.
+> **Last updated:** 2026-06-21 — P0–P5 shipped; UI on the **Concierge Gold** design system (gloss-black / glass); forward **Phase 1 (trust) ✅ + Phase 2 (retention) ✅**. Next: **Phase 3 (agent moat)**. See §10.
 > **Owner:** @realestglad
 > **Companion repos:** `nexie-mobile` (this app) · `nexez` (backend: `/api/agents/nexie`, checkout, negotiations, order portal)
 
@@ -369,6 +369,13 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 > **P0–P5 above are SHIPPED.** This is the prioritized forward plan: prior-phase **carryover**, then **feature depth (Phase 1–5)**, with **App Store / launch work intentionally LAST**.
 > Legend: 👤 owner-only · 🔁 needs an EAS native rebuild · [M]obile / [B]ackend · S/M/L effort.
 
+**Progress at a glance (2026-06-21):**
+- ✅ **Phase 1 — Trust** (seller detail, reviews display+capture, deal timeline, help/support)
+- ✅ **Phase 2 — Retention** (save/favorites, recently-viewed, share, re-order)
+- ⏭️ **Phase 3 — Agent moat** ← NEXT
+- ⬜ Phase 4 — Money clarity · ⬜ Phase 5 — Discovery depth · ⬜ Phase 6 — Launch (LAST)
+- ⏳ **Carryover open** (mostly owner/rebuild): Apple/Google activation, file-based export + glass blur (next rebuild), Redis env, confirm-email check, support@ mailbox, $1 test-order refund.
+
 ### Carryover — close out (small / owner-gated)
 - 👤 🔁 **Activate Apple + Google sign-in** — OAuth consoles + Supabase providers + 4 env vars, then a rebuild links the native modules (code pre-built + dormant).
 - 🔁 **File-based data export** (`expo-sharing` + `expo-file-system`) — fixes the share-sheet failure + large-account size limit; bundle into that rebuild. [B-light + M · S]
@@ -390,8 +397,18 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 - ✅ **Share** (mobile `96994da`) — share button on the business-detail top bar → OS share sheet.
 - ✅ **Re-order** (mobile `96994da`) — "Book again" on reviewable OrderCards + completed deals; seeds the chat (agent-gated).
 
-### Phase 3 — Agent moat (the differentiator)
-- **Saved searches + alerts** [B+M·M] · **Proactive / async background tasks** [B+M·L] · **Attachments to the agent** [B+M·M]
+### Phase 3 — Agent moat (the differentiator) ← NEXT
+> The "buyer AGENT" features users would actually market. Build order below is by dependency: saved-searches infra underpins async tasks.
+
+- **3a. Saved searches + alerts** [B+M·M] — *start here; builds on the Save infra.*
+  - Backend: `saved_searches` buyer-facet table (user_id, query, filters, last_seen, created_at; RLS owner-scoped; add to deletion facet) + `/api/agents/nexie/saved-searches` (GET/POST/DELETE) + a **cron matcher** that diffs new/changed catalog entries against each saved search → `sendPushToUser` (reuses the existing push infra).
+  - Mobile: "Save this search" from Discover (current query + category) → a saved-searches list (Profile/screen) to manage/delete; alerts arrive as push → deep-link to Discover prefiltered.
+  - Caveat: alerts only fire as the catalog churns.
+- **3b. Proactive / async background tasks** [B+M·L] — *the headline; depends on 3a + a server-invokable agent loop.*
+  - A standing task ("keep looking for a plumber under $300 and ping me"). Backend: `agent_tasks` table + a cron runner that invokes the agent loop per active task (no live session) + push on result; idempotent + capped. Mobile: create/track tasks from chat or a Tasks surface.
+  - Risk: the agent loop must run server-side without a buyer session; reuse the buyer-identity-from-session seam carefully (no money without approval — results are notifications, never auto-purchases).
+- **3c. Attachments to the agent** [B+M·M] — "find me this" with a photo or pasted link.
+  - Mobile: image picker / link paste in the composer (🔁 image picker is a native module — may need a rebuild). Backend: the turn accepts an attachment → vision model (confirm grok-4.3 vision support) for images / fetch+parse for links, feeding the search.
 
 ### Phase 4 — Money clarity
 - **Receipts / invoices** [B+M·M] · **Spend-to-date vs budget** [M·S–M] · **Refund status timeline** [B+M·S–M]
