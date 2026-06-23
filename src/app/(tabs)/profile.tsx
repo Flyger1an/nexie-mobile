@@ -442,6 +442,20 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
+        {/* Help & support */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Help and support"
+          style={styles.helpRow}
+          onPress={() => {
+            tapHaptic()
+            router.navigate('/help')
+          }}
+        >
+          <Text style={styles.helpText}>Help & support</Text>
+          <Text style={styles.helpChevron}>›</Text>
+        </Pressable>
+
         {/* Legal */}
         <View style={styles.legalRow}>
           <Pressable
@@ -787,6 +801,28 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontFamily: font.sans700,
     fontSize: 14,
+  },
+  helpRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 50,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderTopColor: colors.sheen,
+    paddingHorizontal: 16,
+    marginTop: 8,
+  },
+  helpText: {
+    color: colors.text,
+    fontFamily: font.sans700,
+    fontSize: 14,
+  },
+  helpChevron: {
+    color: colors.text3,
+    fontSize: 22,
+    lineHeight: 24,
   },
   legalRow: {
     flexDirection: 'row',
