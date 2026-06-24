@@ -2,7 +2,7 @@
 
 > **Status:** Foundational scaffold complete (auth, single-thread chat, voice-in, search/approval/action cards, owner-scoped backend). This document is the source of truth for everything between here and a publicly launched app on the App Store and Google Play.
 >
-> **Last updated:** 2026-06-21 — P0–P5 shipped; UI on the **Concierge Gold** design system (gloss-black / glass); forward **Phase 1 (trust) ✅ + Phase 2 (retention) ✅**. Next: **Phase 3 (agent moat)**. See §10.
+> **Last updated:** 2026-06-23 — P0–P5 shipped; UI on the **Concierge Gold** design system (gloss-black / glass); forward **Phase 1 (trust) ✅ + Phase 2 (retention) ✅ + Phase 3 (agent moat) ✅** (photo-attach = rebuild follow-on). Next: **Phase 4 (money clarity)**. See §10.
 > **Owner:** @realestglad
 > **Companion repos:** `nexie-mobile` (this app) · `nexez` (backend: `/api/agents/nexie`, checkout, negotiations, order portal)
 
@@ -369,17 +369,18 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 > **P0–P5 above are SHIPPED.** This is the prioritized forward plan: prior-phase **carryover**, then **feature depth (Phase 1–5)**, with **App Store / launch work intentionally LAST**.
 > Legend: 👤 owner-only · 🔁 needs an EAS native rebuild · [M]obile / [B]ackend · S/M/L effort.
 
-**Progress at a glance (2026-06-21):**
+**Progress at a glance (2026-06-23):**
 - ✅ **Phase 1 — Trust** (seller detail, reviews display+capture, deal timeline, help/support)
 - ✅ **Phase 2 — Retention** (save/favorites, recently-viewed, share, re-order)
-- ⏭️ **Phase 3 — Agent moat** ← NEXT
-- ⬜ Phase 4 — Money clarity · ⬜ Phase 5 — Discovery depth · ⬜ Phase 6 — Launch (LAST)
+- ✅ **Phase 3 — Agent moat** (saved searches + alerts, proactive agent tasks, link attachments; photo attach = rebuild follow-on)
+- ⏭️ **Phase 4 — Money clarity** ← NEXT · ⬜ Phase 5 — Discovery depth · ⬜ Phase 6 — Launch (LAST)
 - ⏳ **Carryover open** (mostly owner/rebuild): Apple/Google activation, file-based export + glass blur (next rebuild), Redis env, confirm-email check, support@ mailbox, $1 test-order refund.
 
 ### Carryover — close out (small / owner-gated)
 - 👤 🔁 **Activate Apple + Google sign-in** — OAuth consoles + Supabase providers + 4 env vars, then a rebuild links the native modules (code pre-built + dormant).
 - 🔁 **File-based data export** (`expo-sharing` + `expo-file-system`) — fixes the share-sheet failure + large-account size limit; bundle into that rebuild. [B-light + M · S]
 - 🔁 **Glassmorphism blur** (`expo-blur` BlurView) — Concierge Gold "real glass"; bundle into the same rebuild (translucent approximation ships OTA now). [M · S]
+- 🔁 **Photo attachments** (`expo-image-picker` + a vision pipeline) — the 3c photo path; bundle the picker into the same rebuild (link attach ships OTA now). [B+M · M]
 - 👤 **Provision Upstash/KV Redis env** in Vercel — global rate limits + fail-closed active.
 - 👤 **Verify Supabase "Confirm email" is ON**.
 - 👤 **Refund the $1 money-loop test order** via Finance.
@@ -397,15 +398,15 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 - ✅ **Share** (mobile `96994da`) — share button on the business-detail top bar → OS share sheet.
 - ✅ **Re-order** (mobile `96994da`) — "Book again" on reviewable OrderCards + completed deals; seeds the chat (agent-gated).
 
-### Phase 3 — Agent moat (the differentiator) ← NEXT
-> The "buyer AGENT" features users would actually market. Build order below is by dependency: saved-searches infra underpins async tasks.
+### Phase 3 — Agent moat (the differentiator) — ✅ COMPLETE (photo-attach = rebuild follow-on)
+> The "buyer AGENT" features users would actually market. Build order below was by dependency: saved-searches infra underpins async tasks.
 
 - ✅ **3a. Saved searches + alerts** (nexez `c430c0d`, mobile `8de27f5`) — `saved_searches` buyer-facet table (RLS owner-scoped, migration LIVE, in the deletion facet) + `/api/agents/nexie/saved-searches` (GET/POST/DELETE, 6 tests) + `/api/cron/saved-search-alerts` (every 6h, CRON_SECRET-protected, diffs new pages_public → `sendPushToUser`). Mobile: "Save this search" on Discover, a Saved-searches section on the Saved screen, push deep-links to `/discover?q=`. Endpoints live-verified (401). On-device authed UI verify pending (login + healthy emulator). Alerts fire as the catalog churns.
-- **3b. Proactive / async background tasks** [B+M·L] — *the headline; depends on 3a + a server-invokable agent loop.*
-  - A standing task ("keep looking for a plumber under $300 and ping me"). Backend: `agent_tasks` table + a cron runner that invokes the agent loop per active task (no live session) + push on result; idempotent + capped. Mobile: create/track tasks from chat or a Tasks surface.
-  - Risk: the agent loop must run server-side without a buyer session; reuse the buyer-identity-from-session seam carefully (no money without approval — results are notifications, never auto-purchases).
-- **3c. Attachments to the agent** [B+M·M] — "find me this" with a photo or pasted link.
-  - Mobile: image picker / link paste in the composer (🔁 image picker is a native module — may need a rebuild). Backend: the turn accepts an attachment → vision model (confirm grok-4.3 vision support) for images / fetch+parse for links, feeding the search.
+- ✅ **3b. Proactive / async background tasks** (nexez `e0e7df3`, mobile `bdc7a13`) — `agent_tasks` buyer-facet table (RLS owner-scoped, migration LIVE, in the deletion facet) + `/api/agents/nexie/tasks` (GET/POST/PATCH/DELETE, capped at 20 active, 8 tests) + `/api/cron/agent-tasks` (every 6h @ :15, CRON_SECRET-protected). The runner matches each active task against the WHOLE published catalog, deduped per task via `notified_slugs` (distinct from 3a, which fires only on freshly-published pages) → `sendPushToUser`. Mobile: an **Agent tasks** screen from Profile (create / pause-resume / delete / run-now in Discover); PushBridge routes `agent_task` pushes to `/discover?q=`. **NOTIFY only** — money never moves without in-app approval. Endpoints live-verified (401 + bad-bearer 401). On-device authed UI verify pending.
+  - *Scope note:* a lexical catalog match (mirrors Discover) — NOT a headless LLM loop. A full agent-loop runner (semantic ranking, budget-vs-offer-price filtering, chat-initiated task creation) is the natural extension if usage warrants.
+- ✅ **3c. Attachments to the agent** — *link path shipped; photo path = rebuild follow-on.*
+  - ✅ **Link attach** (mobile `ddaf81e`) — a 🔗 button in the chat composer reveals a paste-a-link bar; the link shows as a chip and folds into the turn as framed context. The agent has **no fetch tool**, so the URL is never retrieved server-side (no SSRF). No backend change.
+  - 🔁 **Photo attach** [B+M·M] — needs `expo-image-picker` (native module → rebuild) + a vision pipeline (confirm model vision support, image upload/transport, turn accepts an attachment → vision → search). Bundle the picker into the next EAS rebuild alongside the other 🔁 carryover items.
 
 ### Phase 4 — Money clarity
 - **Receipts / invoices** [B+M·M] · **Spend-to-date vs budget** [M·S–M] · **Refund status timeline** [B+M·S–M]
