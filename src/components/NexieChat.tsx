@@ -50,6 +50,11 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
   const { session } = useAuth()
   const [threadId, setThreadId] = useState<string | undefined>(resumeThreadId)
   const [input, setInput] = useState('')
+  // Attachments: a reference link the buyer pastes ("find me something like this"). The agent has no
+  // fetch tool, so the URL is only framed context — never fetched server-side (no SSRF surface).
+  const [linkOpen, setLinkOpen] = useState(false)
+  const [linkDraft, setLinkDraft] = useState('')
+  const [attachedLink, setAttachedLink] = useState<string | null>(null)
   const [appliedSeed, setAppliedSeed] = useState<string | undefined>()
   const [busy, setBusy] = useState(false)
   // True only during a streamed chat turn (which renders its own inline placeholder bubble), so the
@@ -99,10 +104,14 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
   }
 
   async function submit(text = input, mode: NexieMode = 'text') {
-    const message = text.trim()
-    if (!message || busy || !session) return
+    const base = text.trim()
+    if ((!base && !attachedLink) || busy || !session) return
+    const message = composeMessage(base, attachedLink)
 
     setInput('')
+    setAttachedLink(null)
+    setLinkDraft('')
+    setLinkOpen(false)
     setBusy(true)
     setStreamingTurn(true)
     setError('')
@@ -194,6 +203,17 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
       submit(text, 'voice')
     }
   }
+
+  function attachLink() {
+    const url = normalizeUrl(linkDraft)
+    if (!url) return
+    tapHaptic()
+    setAttachedLink(url)
+    setLinkDraft('')
+    setLinkOpen(false)
+  }
+
+  const canSend = !busy && (Boolean(input.trim()) || Boolean(attachedLink))
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -328,7 +348,71 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
+        {linkOpen && !attachedLink ? (
+          <View style={styles.linkBar}>
+            <TextInput
+              value={linkDraft}
+              onChangeText={setLinkDraft}
+              onSubmitEditing={attachLink}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              returnKeyType="done"
+              autoFocus
+              placeholder="Paste a link to something you like…"
+              placeholderTextColor={colors.text3}
+              accessibilityLabel="Paste a reference link"
+              style={styles.linkInput}
+            />
+            <Pressable
+              onPress={attachLink}
+              disabled={!normalizeUrl(linkDraft)}
+              style={[styles.linkAdd, !normalizeUrl(linkDraft) ? styles.linkAddOff : null]}
+              accessibilityRole="button"
+              accessibilityLabel="Attach link"
+            >
+              <Text style={styles.linkAddText}>Attach</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                setLinkOpen(false)
+                setLinkDraft('')
+              }}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel link"
+            >
+              <Text style={styles.linkCancel}>✕</Text>
+            </Pressable>
+          </View>
+        ) : null}
+
+        {attachedLink ? (
+          <View style={styles.chipBar}>
+            <View style={styles.linkChip}>
+              <Text style={styles.linkChipIcon}>🔗</Text>
+              <Text style={styles.linkChipText} numberOfLines={1}>{hostOf(attachedLink)}</Text>
+              <Pressable onPress={() => setAttachedLink(null)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove attached link">
+                <Text style={styles.linkChipX}>✕</Text>
+              </Pressable>
+            </View>
+            <Text style={styles.chipHint}>Nexxi will look for similar offerings.</Text>
+          </View>
+        ) : null}
+
         <View style={styles.composer}>
+          <Pressable
+            onPress={() => {
+              tapHaptic()
+              setLinkOpen((v) => !v)
+            }}
+            disabled={busy}
+            style={[styles.attachBtn, linkOpen || attachedLink ? styles.attachBtnOn : null]}
+            accessibilityRole="button"
+            accessibilityLabel="Attach a link"
+          >
+            <Text style={styles.attachIcon}>🔗</Text>
+          </Pressable>
           <VoiceButton disabled={busy} onTranscript={handleTranscript} />
           <TextInput
             value={input}
@@ -340,14 +424,14 @@ export function NexieChat({ initialPrompt, resumeThreadId, onOpenHistory, onNewC
             style={styles.input}
           />
           <Pressable
-            disabled={busy || !input.trim()}
+            disabled={!canSend}
             accessibilityRole="button"
             accessibilityLabel="Send message"
-            accessibilityState={{ disabled: busy || !input.trim() }}
-            style={[buttonGlass.base, styles.send, busy || !input.trim() ? buttonGlass.disabled : null]}
+            accessibilityState={{ disabled: !canSend }}
+            style={[buttonGlass.base, styles.send, !canSend ? buttonGlass.disabled : null]}
             onPress={() => submit()}
           >
-            <Text style={[buttonGlass.label, busy || !input.trim() ? buttonGlass.disabledLabel : null]}>Send</Text>
+            <Text style={[buttonGlass.label, !canSend ? buttonGlass.disabledLabel : null]}>Send</Text>
           </Pressable>
         </View>
         <Text style={styles.disclaimer}>Nexxi can make mistakes — and always asks before submitting offers or opening checkout.</Text>
@@ -378,6 +462,27 @@ function CardRenderer({
 
 function cryptoId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
+/** Fold an attached reference link into the outgoing message as plain framed context. */
+function composeMessage(text: string, link: string | null): string {
+  if (!link) return text
+  if (!text) return `Find me something like this: ${link}`
+  return `${text}\n\nReference link: ${link}`
+}
+
+/** Lenient URL check — accept bare hosts (prefix https://), require a dotted host. No URL polyfill needed. */
+function normalizeUrl(raw: string): string | null {
+  const v = raw.trim()
+  if (!v) return null
+  const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v}`
+  if (!/^https?:\/\/[^\s/]+\.[^\s/]+/i.test(withScheme)) return null
+  return withScheme
+}
+
+function hostOf(url: string): string {
+  const m = url.match(/^https?:\/\/([^/?#]+)/i)
+  return m ? m[1].replace(/^www\./, '') : url
 }
 
 const styles = StyleSheet.create({
@@ -591,6 +696,100 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: colors.panel,
     padding: 8,
+  },
+  attachBtn: {
+    height: 48,
+    width: 42,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.panel2,
+  },
+  attachBtnOn: {
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
+  },
+  attachIcon: {
+    fontSize: 15,
+  },
+  linkBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderTopColor: colors.sheen,
+    borderRadius: 12,
+    backgroundColor: colors.panel,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  linkInput: {
+    flex: 1,
+    minHeight: 40,
+    color: colors.text,
+    fontFamily: font.sans,
+    fontSize: 14,
+    paddingVertical: 8,
+  },
+  linkAdd: {
+    borderRadius: 9,
+    backgroundColor: colors.text,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  linkAddOff: {
+    opacity: 0.4,
+  },
+  linkAddText: {
+    color: colors.onAccent,
+    fontFamily: font.sans700,
+    fontSize: 13,
+  },
+  linkCancel: {
+    color: colors.text3,
+    fontSize: 15,
+    paddingHorizontal: 4,
+  },
+  chipBar: {
+    marginBottom: 8,
+    gap: 4,
+  },
+  linkChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+    gap: 8,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  linkChipIcon: {
+    fontSize: 12,
+  },
+  linkChipText: {
+    color: colors.accent,
+    fontFamily: font.sans600,
+    fontSize: 13,
+    flexShrink: 1,
+  },
+  linkChipX: {
+    color: colors.accent,
+    fontFamily: font.sans700,
+    fontSize: 12,
+  },
+  chipHint: {
+    color: colors.text3,
+    fontFamily: font.sans,
+    fontSize: 11,
+    paddingLeft: 4,
   },
   input: {
     flex: 1,
