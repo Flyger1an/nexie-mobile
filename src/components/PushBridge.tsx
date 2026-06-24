@@ -18,8 +18,8 @@ function routeFromResponse(
   // Orders + negotiations both live in the Orders tab; deep-link there.
   if (data?.type === 'order' || data?.type === 'negotiation') {
     router.navigate('/orders')
-  } else if (data?.type === 'saved_search') {
-    // Saved-search alert → open Discover prefiltered to the saved query.
+  } else if (data?.type === 'saved_search' || data?.type === 'agent_task') {
+    // Saved-search alert / agent-task match → open Discover prefiltered to the query.
     router.navigate({ pathname: '/discover', params: { q: data.query ?? '' } })
   }
 }

@@ -442,6 +442,20 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
+        {/* Agent tasks — standing things Nexxi watches for in the background */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Agent tasks"
+          style={styles.helpRow}
+          onPress={() => {
+            tapHaptic()
+            router.navigate('/tasks')
+          }}
+        >
+          <Text style={styles.helpText}>Agent tasks</Text>
+          <Text style={styles.helpChevron}>›</Text>
+        </Pressable>
+
         {/* Saved businesses */}
         <Pressable
           accessibilityRole="button"
