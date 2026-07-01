@@ -1,12 +1,15 @@
 import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { OrderCard } from '@/components/OrderCard'
+import { SpendSummary } from '@/components/SpendSummary'
 import { useAuth } from '@/context/auth'
 import { fetchNexieOrders, orderPortalUrl } from '@/lib/orders-api'
+import { fetchPreferences } from '@/lib/preferences-api'
+import { summarizeSpend } from '@/lib/spend'
 import { colors, font, radius } from '@/lib/theme'
 import type { NexieOrderSummary } from '@/lib/types'
 
@@ -16,16 +19,26 @@ export default function OrdersScreen() {
   const { session } = useAuth()
   const router = useRouter()
   const [orders, setOrders] = useState<NexieOrderSummary[]>([])
+  // Buyer's per-order ceiling + preferred currency, for the spend summary (best-effort; null if prefs fail).
+  const [budgetMax, setBudgetMax] = useState<number | null>(null)
+  const [budgetCurrency, setBudgetCurrency] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
 
-  // Shared fetch for pull-to-refresh + retry (event handlers, not effects).
+  const summary = useMemo(() => summarizeSpend(orders, budgetCurrency), [orders, budgetCurrency])
+
+  // Shared fetch for pull-to-refresh + retry (event handlers, not effects). Preferences are
+  // best-effort — a failure there must not blank the orders list.
   const load = useCallback(async (): Promise<void> => {
     if (!session) return
     try {
-      const result = await fetchNexieOrders(session)
+      const [result, prefs] = await Promise.all([fetchNexieOrders(session), fetchPreferences(session).catch(() => null)])
       setOrders(result.orders ?? [])
+      if (prefs) {
+        setBudgetMax(prefs.preferences.budgetMax)
+        setBudgetCurrency(prefs.preferences.currency)
+      }
       setError('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not load your orders.')
@@ -37,10 +50,14 @@ export default function OrdersScreen() {
   useEffect(() => {
     if (!session) return
     let active = true
-    fetchNexieOrders(session)
-      .then((result) => {
+    Promise.all([fetchNexieOrders(session), fetchPreferences(session).catch(() => null)])
+      .then(([result, prefs]) => {
         if (!active) return
         setOrders(result.orders ?? [])
+        if (prefs) {
+          setBudgetMax(prefs.preferences.budgetMax)
+          setBudgetCurrency(prefs.preferences.currency)
+        }
         setError('')
       })
       .catch((err) => {
@@ -153,6 +170,7 @@ export default function OrdersScreen() {
           data={orders}
           keyExtractor={(item) => `${item.kind}:${item.token}`}
           contentContainerStyle={styles.list}
+          ListHeaderComponent={<SpendSummary summary={summary} ceiling={budgetMax} />}
           renderItem={({ item }) => <OrderCard order={item} onOpen={openOrder} onReview={openReview} onReorder={reorder} />}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.signal} />}
         />
