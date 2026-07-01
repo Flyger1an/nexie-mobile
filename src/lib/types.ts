@@ -78,6 +78,42 @@ export type NexieOrdersResponse = {
   orders: NexieOrderSummary[]
 }
 
+// Full receipt/detail for one order — GET /api/agents/nexie/orders/[token]. Status copy, timeline,
+// and request labels are computed server-side (shared with the web portal), so the app just renders.
+export type NexieStatusTone = 'positive' | 'neutral' | 'warning' | 'pending'
+
+export type NexieTimelineStep = { key: string; label: string; done: boolean; current: boolean }
+
+export type NexieOrderRequest = {
+  id: string
+  kind: string
+  kindLabel: string
+  status: string
+  statusLabel: string
+  message: string | null
+  createdAt: string
+}
+
+export type NexieOrderDetail = {
+  kind: 'checkout' | 'negotiation'
+  token: string
+  reference: string
+  offerName: string | null
+  amountCents: number | null
+  currency: string
+  status: string
+  statusLabel: string
+  statusTone: NexieStatusTone
+  statusDescription: string
+  sellerName: string | null
+  slug: string | null
+  createdAt: string
+  timeline: NexieTimelineStep[]
+  requests: NexieOrderRequest[]
+  canRequestRefund: boolean
+  canReview: boolean
+}
+
 // Buyer "standing preferences" — mirrors the nexez NexiePreferences shape (the agent
 // reads these every turn; the server is the source of truth + validator).
 export type NexieTiming = 'flexible' | 'this_week' | 'asap'

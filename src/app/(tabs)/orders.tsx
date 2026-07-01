@@ -1,5 +1,4 @@
 import { useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -7,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { OrderCard } from '@/components/OrderCard'
 import { SpendSummary } from '@/components/SpendSummary'
 import { useAuth } from '@/context/auth'
-import { fetchNexieOrders, orderPortalUrl } from '@/lib/orders-api'
+import { fetchNexieOrders } from '@/lib/orders-api'
 import { fetchPreferences } from '@/lib/preferences-api'
 import { summarizeSpend } from '@/lib/spend'
 import { colors, font, radius } from '@/lib/theme'
@@ -84,25 +83,22 @@ export default function OrdersScreen() {
   }, [load])
 
   function openOrder(order: NexieOrderSummary) {
-    // Negotiations → the native deal screen (status timeline + agent-gated actions). Direct-checkout
-    // orders → the web portal (refund/report recourse lives there).
-    if (order.kind === 'negotiation') {
-      router.navigate({
-        pathname: '/deal/[token]',
-        params: {
-          token: order.token,
-          status: order.status,
-          offerName: order.offerName ?? '',
-          amountCents: order.amountCents == null ? '' : String(order.amountCents),
-          currency: order.currency,
-          sellerName: order.sellerName ?? '',
-          slug: order.slug ?? '',
-          createdAt: order.createdAt,
-        },
-      })
-      return
-    }
-    WebBrowser.openBrowserAsync(orderPortalUrl(order.token)).catch(() => {})
+    // Negotiations → the native deal screen (lifecycle stepper + agent-gated actions). Direct-checkout
+    // orders → the native receipt screen (full detail + refund/request timeline; recourse opens the portal).
+    const pathname = order.kind === 'negotiation' ? '/deal/[token]' : '/receipt/[token]'
+    router.navigate({
+      pathname,
+      params: {
+        token: order.token,
+        status: order.status,
+        offerName: order.offerName ?? '',
+        amountCents: order.amountCents == null ? '' : String(order.amountCents),
+        currency: order.currency,
+        sellerName: order.sellerName ?? '',
+        slug: order.slug ?? '',
+        createdAt: order.createdAt,
+      },
+    })
   }
 
   function openReview(order: NexieOrderSummary) {
