@@ -2,7 +2,7 @@
 
 > **Status:** Foundational scaffold complete (auth, single-thread chat, voice-in, search/approval/action cards, owner-scoped backend). This document is the source of truth for everything between here and a publicly launched app on the App Store and Google Play.
 >
-> **Last updated:** 2026-06-23 — P0–P5 shipped; UI on the **Concierge Gold** design system (gloss-black / glass); forward **Phase 1 (trust) ✅ + Phase 2 (retention) ✅ + Phase 3 (agent moat) ✅** (photo-attach = rebuild follow-on). Next: **Phase 4 (money clarity)**. See §10.
+> **Last updated:** 2026-06-23 — P0–P5 shipped; UI on the **Concierge Gold** design system (gloss-black / glass); forward **Phase 1 (trust) ✅ + Phase 2 (retention) ✅ + Phase 3 (agent moat) ✅ + Phase 4 (money clarity) ✅** (photo-attach = rebuild follow-on). Next: **Phase 5 (discovery depth)**. See §10.
 > **Owner:** @realestglad
 > **Companion repos:** `nexie-mobile` (this app) · `nexez` (backend: `/api/agents/nexie`, checkout, negotiations, order portal)
 
@@ -373,7 +373,8 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
 - ✅ **Phase 1 — Trust** (seller detail, reviews display+capture, deal timeline, help/support)
 - ✅ **Phase 2 — Retention** (save/favorites, recently-viewed, share, re-order)
 - ✅ **Phase 3 — Agent moat** (saved searches + alerts, proactive agent tasks, link attachments; photo attach = rebuild follow-on)
-- ⏭️ **Phase 4 — Money clarity** ← NEXT · ⬜ Phase 5 — Discovery depth · ⬜ Phase 6 — Launch (LAST)
+- ✅ **Phase 4 — Money clarity** (spend-to-date summary, native receipts, refund/request timeline)
+- ⏭️ **Phase 5 — Discovery depth** ← NEXT · ⬜ Phase 6 — Launch (LAST)
 - ⏳ **Carryover open** (mostly owner/rebuild): Apple/Google activation, file-based export + glass blur (next rebuild), Redis env, confirm-email check, support@ mailbox, $1 test-order refund.
 
 ### Carryover — close out (small / owner-gated)
@@ -408,8 +409,10 @@ P0 (harden) → P1 (close loop) → P2 (surfaces) → P4 (account) → P5 (compl
   - ✅ **Link attach** (mobile `ddaf81e`) — a 🔗 button in the chat composer reveals a paste-a-link bar; the link shows as a chip and folds into the turn as framed context. The agent has **no fetch tool**, so the URL is never retrieved server-side (no SSRF). No backend change.
   - 🔁 **Photo attach** [B+M·M] — needs `expo-image-picker` (native module → rebuild) + a vision pipeline (confirm model vision support, image upload/transport, turn accepts an attachment → vision → search). Bundle the picker into the next EAS rebuild alongside the other 🔁 carryover items.
 
-### Phase 4 — Money clarity
-- **Receipts / invoices** [B+M·M] · **Spend-to-date vs budget** [M·S–M] · **Refund status timeline** [B+M·S–M]
+### Phase 4 — Money clarity — ✅ COMPLETE
+- ✅ **Spend-to-date summary** (mobile `2c340a5`) — a money-clarity header on the Orders tab: all-time committed spend, this-month spend, order count, and the buyer's per-order ceiling (with a note if any order exceeded it). Pure `lib/spend.ts` summarizer (14 logic checks via tsx) + `SpendSummary` card; "committed" = money with the seller, grouped to one currency, other-currency orders counted separately. *Note: the existing budget is a PER-ORDER ceiling, not a period budget — shown as such (no misleading cumulative bar). A true period budget would need a new preference (backend).*
+- ✅ **Receipts / invoices** (nexez `fd1b411`, mobile `ae37ca1`) — a native **Receipt** screen for checkout orders (replaces the web bounce): status + plain-language description, order timeline, reference, date, actions. Backed by `GET /api/agents/nexie/orders/[token]` which reuses `loadOrderByToken` (the web portal's buyer-safe view) but ADDS account binding — confirmed-email + `buyer_email` match, fail-closed (8 tests incl. the cross-account 404 guard). Status/timeline/labels computed with the shared `buyer-portal` helpers (one source of truth). Live-verified (401 unauth).
+- ✅ **Refund status timeline** — folded into the Receipt screen: the order timeline reflects refunded/partial/disputed states, and refund/problem-report **requests** render with their status (Pending → Reviewing → Resolved/Declined). Recourse (file a refund/report) opens the existing portal — no new write path.
 
 ### Phase 5 — Discovery depth & growth
 - **Filters & sort** [M·S–M] · **Map view + personalized/trending home** [B+M·M] (absorbs the deferred P2 ranking item) · **Notifications center / activity feed** [M·M] · **Referral**, **address management**, finer **notification prefs** [each S]
